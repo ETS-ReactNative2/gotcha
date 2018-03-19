@@ -97,6 +97,8 @@ export default class HomeScreen extends React.Component {
   render() { 
     const { name, id, image } = this.props.screenProps.user
     console.log(name, id, image)
+    const logout  = this.props.screenProps.logout
+    console.log(logout)
     const { feeds } = this.state
     let feedsJSX = feeds.map((feed, i) => {
       return (
@@ -150,7 +152,7 @@ export default class HomeScreen extends React.Component {
     return (
       <Drawer
         ref={(ref) => { this.drawer = ref; }}
-        content={<SideBar user={this.props.screenProps.user} />}
+        content={<SideBar user={this.props.screenProps.user} logout={this.props.screenProps.logout}/>}
         onClose={() => this.closeDrawer()} >
         <Container>
           <Header hasSegment>
@@ -169,46 +171,6 @@ export default class HomeScreen extends React.Component {
           <Content>
             <ScrollView style={styles.container}>
               {feedsJSX}
-              {/* <Card>
-                <CardItem>
-                  <Left>
-                    <Thumbnail source={{ uri: image}} />
-                    <Body>
-                      <Text>The cutest cat ever!</Text>
-                      <Text note>Eugene</Text>
-                    </Body>
-                  </Left>
-                </CardItem>
-                <CardItem cardBody>
-                  <Image 
-                      source={{uri: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg'}}
-                      style={{height: 200, width: null, flex: 1}}
-                      blurRadius={this.state.pressStatus? 0 : Platform.OS === 'ios' ? 70 : 10}
-                    />
-                </CardItem>
-                <CardItem>
-                  <Left >
-                    <Button transparent >
-                      <FontAwesome style={{fontSize: 25, textAlign: 'center'}} name='close'/>
-                    </Button>
-                  </Left>
-                  <Body >
-                    <Button transparent onPress={() => {
-                      this.props.navigation.navigate('ViewContent', {
-                        headline: 'The cutest cat ever!',
-                        type: 'image',
-                        media: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg',
-                      })
-                    }}
-                      style={{justifyContent: 'center'}}>
-                      <FontAwesome style={{fontSize: 50}} name='eye'/>
-                    </Button>
-                  </Body>
-                  <Right>
-                    <Text>? hrs ago</Text>
-                  </Right>
-                </CardItem>
-              </Card> */}
               <View style={styles.getStartedContainer}>
                 {/* <TouchableOpacity
                   // style={[{ flex: 0.3, alignSelf: 'flex-end' }]}

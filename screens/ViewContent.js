@@ -46,10 +46,11 @@ export default class ViewContent extends React.Component {
   async takePicture() {
     // console.log(this.camera)
     if (this.camera) {
-      let photo = await this.camera.takePictureAsync()
-      console.log(photo)
+      // let photo = await this.camera.takePictureAsync()
+      // console.log(photo)
       this.camera.takePictureAsync().then(data => {
         console.log("took the photo...")
+        console.log(data.uri)
         FileSystem.moveAsync({
           from: data.uri,
           // to: `${FileSystem.documentDirectory}photos/Photo_${this.state.photoId}.jpg`,
@@ -99,7 +100,10 @@ export default class ViewContent extends React.Component {
     //     console.log(err)
     //   })
     // })
-    this.setState({photos : []})
+    this.setState({
+      photoId: 1,
+      photos: []
+    })
   }
 
   async onPressHold() {
@@ -121,14 +125,15 @@ export default class ViewContent extends React.Component {
 
   render() {
     const { hasCameraPermission } = this.state;
-    console.log(this.state.pressStatus)
-    
+    console.log('pressStatus', this.state.pressStatus)
+    FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}photos`).then(files => {
+      console.log(files)
+    })
     /* 2. Read the params from the navigation state */
     const { params } = this.props.navigation.state;
     const type = params ? params.type : null;
     const media = params ? params.media : null;
     const headline = params ? params.headline : null;
-    console.log("hello from View Contents")
     if (hasCameraPermission === null) {
       return <View />;
     } else if (hasCameraPermission === false) {

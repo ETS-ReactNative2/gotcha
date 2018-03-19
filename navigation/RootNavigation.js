@@ -85,10 +85,21 @@ export default class RootNavigator extends React.Component {
     }
   }
 
+  logout = () => {
+    console.log('Logging out...')
+    this.setState({
+      isLoggedIn: false
+    })
+  }
+
   render() {
     // console.log(this.state.user)
     if (this.state.isLoggedIn) {
-      return <RootStackNavigator screenProps={{user: this.state.user}} />;
+      return <RootStackNavigator 
+        screenProps={{
+          user: this.state.user, 
+          logout: this.logout 
+        }} />
     } else {
       if (this.state.loading) {
         return <Expo.AppLoading />;
