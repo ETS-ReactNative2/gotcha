@@ -75,15 +75,30 @@ export default class ViewContent extends React.Component {
     })
   }
 
-  onDelete = () => {
-    this.state.photos.forEach(uri => {
-      console.log(`Deleted ${uri}...`)
-      FileSystem.deleteAsync(uri).then(success=> {
-        console.log(success)
-      }).catch(err => {
-        console.log(err)
+  async onDelete() {
+    console.log('Hi Deleting...')
+    let allFiles = await FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}photos`).then(directoryContents => {
+      console.log(directoryContents)
+      directoryContents.forEach(filename => {
+        // console.log(filename)
+        FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/${filename}`).then(success=> {
+          console.log(`Deleted ${filename}...`)
+        }).catch(err => {
+          console.log(err)
+        })
       })
+    }).catch(err => {
+      console.log(err)
     })
+    // this.state.photos.forEach(uri => {
+    //   console.log(`Deleted ${uri}...`)
+
+    //   FileSystem.deleteAsync(uri).then(success=> {
+    //     console.log(success)
+    //   }).catch(err => {
+    //     console.log(err)
+    //   })
+    // })
     this.setState({photos : []})
   }
 
@@ -107,7 +122,7 @@ export default class ViewContent extends React.Component {
   render() {
     const { hasCameraPermission } = this.state;
     console.log(this.state.pressStatus)
-    // console.log(hasCameraPermission)
+    
     /* 2. Read the params from the navigation state */
     const { params } = this.props.navigation.state;
     const type = params ? params.type : null;
@@ -134,18 +149,27 @@ export default class ViewContent extends React.Component {
             </Header>
             <Content>
               <View style={styles.container}>
-                <ScrollView>
+                <ScrollView style={{backgroundColor: 'transparent'}} >
                   <Image 
                     source={{uri: media}}
                     style={{height: 200, width: null, flex: 1}}
                     blurRadius={this.state.pressStatus? 0 : Platform.OS === 'ios' ? 70 : 10}
                   />
+                  <View style={{flex: 1, flexWrap: 'nowrap', backgroundColor: 'transparent'}}>
+                    <Text style={{textAlign: 'center', backgroundColor: 'transparent'}} >
+                    {this.state.photos.length}</Text>
+                  </View>
+                  <View style={{flex: 1, flexWrap: 'nowrap', backgroundColor: 'transparent'}}>
+                    <Text style={{textAlign: 'center', backgroundColor: 'transparent'}}>Press and hold to reveal.</Text>
+                    </View>
                   <View 
                     style={{ 
                       flex: 1,
                       backgroundColor: 'transparent',
                       flexDirection: 'row',
                       flexWrap: 'wrap' }}>
+                    
+
                     {this.state.photos.map(photo => {
                       return (
                       <TouchableOpacity key={photo} onPress={() => { this.onSaveImage(photo) }}>
@@ -177,7 +201,7 @@ export default class ViewContent extends React.Component {
                 </Button>
                 <Button
                   transparent
-                  onPress={this.onDelete}>
+                  onPress={this.onDelete.bind(this)}>
                   <MaterialIcons style={{fontSize: 25}} name='delete'/>
                 </Button>
               </FooterTab>

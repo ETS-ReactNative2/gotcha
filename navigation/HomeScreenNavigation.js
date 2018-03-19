@@ -27,6 +27,7 @@ const HomeScreenNavigator = StackNavigator(
 
 export default class HomeScreenNavigation extends React.Component {
   render() {
-    return <HomeScreenNavigator />;
+    console.log(this.props)
+    return <HomeScreenNavigator screenProps={this.props.screenProps } />;
   }
 }

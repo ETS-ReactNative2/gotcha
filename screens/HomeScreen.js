@@ -8,12 +8,12 @@ import {
   View,
   Clipboard
 } from 'react-native';
-import { WebBrowser } from 'expo';
-import { Constants, Camera, FileSystem, Permissions, Svg } from 'expo';
+import { WebBrowser, AppLoading } from 'expo';
+import { Constants, Camera, FileSystem, Permissions } from 'expo';
 
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons, FontAwesome, Entypo } from '@expo/vector-icons';
 
-import { Container, Content, Card, CardItem, Thumbnail, Header, Title, Button, Left, Right, Body, Icon, Text } from 'native-base';
+import { Container, Content, Card, CardItem, Thumbnail, Header, Title, Button, Left, Right, Body, Icon, Text, Drawer } from 'native-base';
 import { MonoText } from '../components/StyledText';
 import FromClipboard from '../components/FromClipboard'
 
@@ -21,6 +21,20 @@ const imagePlaceholder = require('../assets/images/image-placeholder.jpg')
 
 import { StackNavigator } from 'react-navigation';
 import ViewContent from './ViewContent'
+import SideBar from './SideBar'
+
+import * as firebase from 'firebase';
+
+// Initialize Firebase
+// const firebaseConfig = {
+//   apiKey: "AIzaSyBWlhoHRN3YtIamdrrdntfd03Y5TZHQTWs",
+//   authDomain: "gotchaapp-2018.firebaseapp.com",
+//   databaseURL: "https://gotchaapp-2018.firebaseio.com",
+//   storageBucket: "gotchaapp-2018.appspot.com"
+// };
+
+// firebase.initializeApp(firebaseConfig);
+
 
 const App = StackNavigator({
   ViewContent: { screen: ViewContent}
@@ -30,6 +44,21 @@ export default class HomeScreen extends React.Component {
     super() 
     this.state = {
       clipboard: 'testing123',
+      feeds: [
+        {
+          userPoster: {
+            name: 'Tomy Reyes',
+            profileImage: 'https://media.licdn.com/dms/image/C5603AQEw-wBcfE47fA/profile-displayphoto-shrink_800_800/0?e=1526666400&v=alpha&t=npiyvrpaXUdwEXZWTxTQJpbff9zgOL6hsB1G6W8bUcQ',
+          },
+          content: {
+            type: 'image',
+            title: 'The cutest cat ever!',
+            data: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg',
+            dated: 'March 19'
+          },
+          readState: false
+        }
+      ],
       loading: true
     };
   }
@@ -53,79 +82,145 @@ export default class HomeScreen extends React.Component {
     }
   }
 
+  closeDrawer = () => {
+    this.drawer._root.close()
+  }
+
+  openDrawer = () => {
+    this.drawer._root.open()
+  }
+
   static navigationOptions = {
     header: null,
-  };
+  }
 
   render() { 
+    const { name, id, image } = this.props.screenProps.user
+    console.log(name, id, image)
+    const { feeds } = this.state
+    let feedsJSX = feeds.map((feed, i) => {
+      return (
+        <Card key={i} >
+          <CardItem>
+            <Left>
+              <Thumbnail source={{ uri: feed.userPoster.profileImage}} />
+              <Body>
+                <Text>{feed.content.title}</Text>
+                <Text note>{feed.userPoster.name}</Text>
+              </Body>
+            </Left>
+          </CardItem>
+          <CardItem cardBody>
+            {/* <Image source={require('../assets/images/image-placeholder.jpg')} style={{height: 200, width: null, flex: 1}}/> */}
+            <Image 
+                source={{uri: feed.content.data}}
+                style={{height: 200, width: null, flex: 1}}
+                blurRadius={this.state.pressStatus? 0 : Platform.OS === 'ios' ? 70 : 10}
+              />
+          </CardItem>
+          <CardItem>
+            <Left >
+              <Button transparent >
+                <FontAwesome style={{fontSize: 25, textAlign: 'center'}} name='close'/>
+              </Button>
+            </Left>
+            <Body >
+              <Button transparent onPress={() => {
+                this.props.navigation.navigate('ViewContent', {
+                  headline: feed.content.title,
+                  type: feed.content.title.type,
+                  media: feed.content.data,
+                })
+              }}
+                style={{justifyContent: 'center'}}>
+                <FontAwesome style={{fontSize: 50}} name='eye'/>
+              </Button>
+            </Body>
+            <Right>
+              <Text>{feed.content.dated}</Text>
+            </Right>
+          </CardItem>
+        </Card>
+      )
+    })
+
     if (this.state.loading) {
-      return <Expo.AppLoading />;
+      return <AppLoading />;
     }
     return (
-      // <View style={styles.container}>
-      <Container>
-        <Header hasSegment>
-          <Left />
-          <Body style={{alignItems: 'center'}}>
-            <Title>Gotcha</Title>
-          </Body>
-          <Right />
-        </Header>
-        <Content>
-          <ScrollView style={styles.container}>
-            <Card>
-              <CardItem>
-                <Left>
-                  <Thumbnail source={{ uri: 'https://scontent.fyvr4-1.fna.fbcdn.net/v/t1.0-1/p240x240/10984308_10152809530953375_2703448129335287047_n.jpg?oh=8fa73fade43f74d7e10f15dd73662450&oe=5B39DB7D'}} />
-                  <Body>
-                    <Text>The cutest cat ever!</Text>
-                    <Text note>Eugene</Text>
+      <Drawer
+        ref={(ref) => { this.drawer = ref; }}
+        content={<SideBar user={this.props.screenProps.user} />}
+        onClose={() => this.closeDrawer()} >
+        <Container>
+          <Header hasSegment>
+            <Left >
+              <Button onPress={this.openDrawer} >
+                <Entypo 
+                  style={{fontSize: 25, color: 'white'}} 
+                  name='menu' />
+              </Button>
+            </Left >
+            <Body style={{alignItems: 'center'}}>
+              <Title>Gotcha</Title>
+            </Body>
+            <Right />
+          </Header>
+          <Content>
+            <ScrollView style={styles.container}>
+              {feedsJSX}
+              {/* <Card>
+                <CardItem>
+                  <Left>
+                    <Thumbnail source={{ uri: image}} />
+                    <Body>
+                      <Text>The cutest cat ever!</Text>
+                      <Text note>Eugene</Text>
+                    </Body>
+                  </Left>
+                </CardItem>
+                <CardItem cardBody>
+                  <Image 
+                      source={{uri: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg'}}
+                      style={{height: 200, width: null, flex: 1}}
+                      blurRadius={this.state.pressStatus? 0 : Platform.OS === 'ios' ? 70 : 10}
+                    />
+                </CardItem>
+                <CardItem>
+                  <Left >
+                    <Button transparent >
+                      <FontAwesome style={{fontSize: 25, textAlign: 'center'}} name='close'/>
+                    </Button>
+                  </Left>
+                  <Body >
+                    <Button transparent onPress={() => {
+                      this.props.navigation.navigate('ViewContent', {
+                        headline: 'The cutest cat ever!',
+                        type: 'image',
+                        media: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg',
+                      })
+                    }}
+                      style={{justifyContent: 'center'}}>
+                      <FontAwesome style={{fontSize: 50}} name='eye'/>
+                    </Button>
                   </Body>
-                </Left>
-              </CardItem>
-              <CardItem cardBody>
-                {/* <Svg height={200} >
-                  {imagePlaceholder}
-                </Svg> */}
-                <Image source={require('../assets/images/image-placeholder.jpg')} style={{height: 200, width: null, flex: 1}}/>
-              </CardItem>
-              <CardItem>
-                <Left >
-                  <Button transparent >
-                    <FontAwesome style={{fontSize: 25, textAlign: 'center'}} name='close'/>
-                  </Button>
-                </Left>
-                <Body >
-                  <Button transparent onPress={() => {
-                    this.props.navigation.navigate('ViewContent', {
-                      headline: 'The cutest cat ever!',
-                      type: 'image',
-                      media: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg',
-                    })
-                  }}
-                    style={{justifyContent: 'center'}}>
-                    <FontAwesome style={{fontSize: 50}} name='eye'/>
-                  </Button>
-                </Body>
-                <Right>
-                  <Text>? hrs ago</Text>
-                </Right>
-              </CardItem>
-            </Card>
-            <View style={styles.getStartedContainer}>
-              {/* <TouchableOpacity
-                // style={[{ flex: 0.3, alignSelf: 'flex-end' }]}
-                onPress={this._getContent.bind(this)}>
-                <Ionicons name="ios-radio-button-on-outline" size={32} color="green" />
-              </TouchableOpacity> */}
-              {/* <FromClipboard clipboard={this.state.clipboard} /> */}
-            </View>
-
-
-          </ScrollView>
-        </Content>
-      </Container>
-       /* </View> */
+                  <Right>
+                    <Text>? hrs ago</Text>
+                  </Right>
+                </CardItem>
+              </Card> */}
+              <View style={styles.getStartedContainer}>
+                {/* <TouchableOpacity
+                  // style={[{ flex: 0.3, alignSelf: 'flex-end' }]}
+                  onPress={this._getContent.bind(this)}>
+                  <Ionicons name="ios-radio-button-on-outline" size={32} color="green" />
+                </TouchableOpacity> */}
+                {/* <FromClipboard clipboard={this.state.clipboard} /> */}
+              </View>
+            </ScrollView>
+          </Content>
+        </Container>
+      </Drawer>
     );
   }
 }
