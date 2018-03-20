@@ -6,7 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-  Clipboard
+  Clipboard,
+  Dimensions
 } from 'react-native';
 import { WebBrowser, AppLoading } from 'expo';
 import { Constants, Camera, FileSystem, Permissions } from 'expo';
@@ -23,19 +24,6 @@ import { StackNavigator } from 'react-navigation';
 import ViewContent from './ViewContent'
 import SideBar from './SideBar'
 
-import * as firebase from 'firebase';
-
-// Initialize Firebase
-// const firebaseConfig = {
-//   apiKey: "AIzaSyBWlhoHRN3YtIamdrrdntfd03Y5TZHQTWs",
-//   authDomain: "gotchaapp-2018.firebaseapp.com",
-//   databaseURL: "https://gotchaapp-2018.firebaseio.com",
-//   storageBucket: "gotchaapp-2018.appspot.com"
-// };
-
-// firebase.initializeApp(firebaseConfig);
-
-
 const App = StackNavigator({
   ViewContent: { screen: ViewContent}
 })
@@ -47,8 +35,8 @@ export default class HomeScreen extends React.Component {
       feeds: [
         {
           userPoster: {
-            name: 'Tomy Reyes',
-            profileImage: 'https://media.licdn.com/dms/image/C5603AQEw-wBcfE47fA/profile-displayphoto-shrink_800_800/0?e=1526666400&v=alpha&t=npiyvrpaXUdwEXZWTxTQJpbff9zgOL6hsB1G6W8bUcQ',
+            name: 'Gotcha',
+            profileImage: 'https://scontent.fyvr4-1.fna.fbcdn.net/v/t1.0-1/p240x240/29387079_122176835288811_6530670860750028800_n.jpg?_nc_cat=0&oh=f915acf4f33885dcf89e6fcbe3a71077&oe=5B3BF82E',
           },
           content: {
             type: 'image',
@@ -101,6 +89,7 @@ export default class HomeScreen extends React.Component {
     console.log(logout)
     const { feeds } = this.state
     let feedsJSX = feeds.map((feed, i) => {
+      console.log(feed.content) 
       return (
         <Card key={i} >
           <CardItem>
@@ -116,7 +105,7 @@ export default class HomeScreen extends React.Component {
             {/* <Image source={require('../assets/images/image-placeholder.jpg')} style={{height: 200, width: null, flex: 1}}/> */}
             <Image 
                 source={{uri: feed.content.data}}
-                style={{height: 200, width: null, flex: 1}}
+                style={{height: Dimensions.get('screen').height/3, width: null , flex: 1}}
                 blurRadius={this.state.pressStatus? 0 : Platform.OS === 'ios' ? 70 : 10}
               />
           </CardItem>

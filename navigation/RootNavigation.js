@@ -10,6 +10,48 @@ import registerForPushNotificationsAsync from '../api/registerForPushNotificatio
 
 import { Container, Header, Content, Thumbnail, Text, Button } from 'native-base';
 
+import * as firebase from 'firebase';
+
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBWlhoHRN3YtIamdrrdntfd03Y5TZHQTWs",
+  authDomain: "gotchaapp-2018.firebaseapp.com",
+  databaseURL: "https://gotchaapp-2018.firebaseio.com",
+  storageBucket: "gotchaapp-2018.appspot.com"
+};
+
+if (firebase.apps.length === 0) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+function storeUserData(user, data) {
+  if (user != null) {
+    firebase.database().ref('users/' + user.providerData[0].uid).set({
+      data: data
+    });
+  }
+}
+
+function setupDataListener(userId) {
+  firebase.database().ref('users/' + userId).on('value', (snapshot) => {
+    const data = snapshot.val().data;
+    console.log("New data: " + data);
+  });
+}
+
+// Listen for authentication state to change.
+firebase.auth().onAuthStateChanged((user) => {
+  if (user != null) { 
+    console.log(user.providerData[0])
+    console.log('this is the user uri', user.providerData[0].uid)
+    storeUserData(user, user.providerData[0])
+    // firebase.database().ref('users/' + user.providerData.uid).set({
+    //   data: user.providerData
+    // });
+    console.log("We are authenticated now!"); 
+  }
+  // Do other things
+});
 
 const RootStackNavigator = StackNavigator(
   {
@@ -44,10 +86,12 @@ export default class RootNavigator extends React.Component {
       Ionicons: require('@expo/vector-icons/fonts/Ionicons.ttf'),
     });
     this.setState({ loading: false });
+
   }
 
   componentDidMount() {
     this._notificationSubscription = this._registerForPushNotifications();
+    
   }
 
   componentWillUnmount() {
@@ -60,6 +104,15 @@ export default class RootNavigator extends React.Component {
         permissions: ['public_profile', 'email', 'user_friends'],
       });
     if (type === 'success') {
+
+      // Build Firebase credential with the Facebook access token.
+      const credential = firebase.auth.FacebookAuthProvider.credential(token);
+      // console.log('credential', credential)
+
+      // Sign in with credential from the Facebook user.
+      firebase.auth().signInWithCredential(credential).catch((error) => {
+        // Handle Errors here.
+      });
       // Get the user's name using Facebook's Graph API
       const response = await fetch(
         `https://graph.facebook.com/me?access_token=${token}`)
@@ -68,8 +121,10 @@ export default class RootNavigator extends React.Component {
           // console.log(JSON.parse(success._bodyInit))
           const { name, id } = JSON.parse(success._bodyInit)
           console.log(id)
+          
+
           const profileImage = fetch(`https://graph.facebook.com//v2.12/${id}/picture?type=normal`).then(res => {
-            console.log(res)
+            // console.log(res)
             this.setState({
               user: {
                 name: name,
