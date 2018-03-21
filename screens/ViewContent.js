@@ -118,8 +118,8 @@ export default class ViewContent extends React.Component {
     }
   };
 
-  onSaveImage = (tag) => {
-    CameraRoll.saveToCameraRoll(tag).then(response => {
+  onSaveImage = (photoUri) => {
+    CameraRoll.saveToCameraRoll(photoUri).then(response => {
       console.log(response)
     }).catch(err => {
       console.log(err)
@@ -127,25 +127,22 @@ export default class ViewContent extends React.Component {
   }
 
   async onDelete() {
-    console.log('Hi Deleting...')
-    // let cachedFiles = await FileSystem.readDirectoryAsync('file:///var/mobile/Containers/Data/Application/7BFFDB83-09C1-49BD-91CB-FD085EDF9AB6/Library/Caches/ExponentExperienceData/%2540eugeneyu%252Fsharebi/Camera').then(directoryContents => {
-    //   console.log('cached directory', directoryContents)
-    // }).catch(err => {console.log(err)})
-    let allFiles = await FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}photos`).then(directoryContents => {
-      console.log(directoryContents)
-      directoryContents.forEach(filename => {
-        // console.log(filename)
-        FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/${filename}`).then(success=> {
-          console.log(`Deleted ${filename}...`)
-        }).catch(err => {
-          console.log(err)
-        })
-      })
-    }).catch(err => {
-      console.log(err)
-    })
+    console.log('Deleting temp photos...')
+    // let allFiles = await FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}photos`).then(directoryContents => {
+    //   console.log(directoryContents)
+    //   directoryContents.forEach(filename => {
+    //     // console.log(filename)
+    //     FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/${filename}`).then(success=> {
+    //       console.log(`Deleted ${filename}...`)
+    //     }).catch(err => {
+    //       console.log(err)
+    //     })
+    //   })
+    // }).catch(err => {
+    //   console.log(err)
+    // })
     this.setState({
-      // photoId: 1,
+      photoId: 0,
       photos: [] 
     })
   }
@@ -165,47 +162,12 @@ export default class ViewContent extends React.Component {
     this.snapshots = false 
   }
 
-  convertToByteArray = (input) => {
-    var binary_string = this.atob(input);
-    var len = binary_string.length;
-    var bytes = new Uint8Array(len);
-    for (var i = 0; i < len; i++) {
-      bytes[i] = binary_string.charCodeAt(i);
-    }
-    return bytes
-  }
-  
-  atob = (input) => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-    let str = input.replace(/=+$/, '');
-    let output = '';
-
-    // if (str.length % 4 == 1) {
-    //   throw new Error("'atob' failed: The string to be decoded is not correctly encoded.");
-    // }
-    for (let bc = 0, bs = 0, buffer, i = 0;
-      buffer = str.charAt(i++);
-
-      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
-        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
-    ) {
-      buffer = chars.indexOf(buffer);
-    }
-
-    return output;
-  }
-
+ 
 
 
   onSend = async (uri) => {
     console.log(uri)
     const base64Image = await ImageManipulator.manipulate(uri, [{resize: {width: 500}}], {format: 'jpeg', base64: true}).then(success => {
-      // console.log('this is from image manupulator', success.base64 )
-      // firebase.storage().ref('/images/test.jpg').putString('data:image/jpeg;base64,'+success.base64, 'data_url')
-      // Base64 formatted string
-      // let imageRef = firebase.storage().ref().child('firstimage.jpg')
-      // let imagesRef = firebase.storage().ref().child('images/firstimage.jpg')
       let base64Img = `data:image/jpeg;base64,${success.base64}`
       let apiUrl = 'https://api.cloudinary.com/v1_1/eugeneyu/image/upload'
 
@@ -222,10 +184,15 @@ export default class ViewContent extends React.Component {
         method: 'POST',
       }).then(response => {
         let data = response._bodyText
-        console.log(JSON.parse(data).secure_url)
+        let imageURL = JSON.parse(data).secure_url
+        console.log(imageURL)
+        firebase.database().ref('users/' + this.props.screenProps.user.id + '/firstReaction').transaction(function(){
+          return imageURL
+        })
       }).catch(err => {
         console.log(err)
       })
+      this.setModalVisible(!this.state.modalVisible)
 
       // var metadata = {
       //   contentType: 'image/jpeg',
@@ -278,10 +245,7 @@ export default class ViewContent extends React.Component {
     const { hasCameraPermission } = this.state;
     console.log('pressStatus', this.state.pressStatus)
     console.log('modalUri', this.state.modalUri)
-    // FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}photos`).then(files => {
-    FileSystem.readDirectoryAsync(FileSystem.cacheDirectory+'Camera').then(files => {
-      console.log(files)
-    })
+
     /* 2. Read the params from the navigation state */
     const { params } = this.props.navigation.state;
     const type = params ? params.type : null;
@@ -298,9 +262,7 @@ export default class ViewContent extends React.Component {
             animationType="slide"
             transparent={false}
             visible={this.state.modalVisible}
-            onRequestClose={() => {
-              alert('Modal has been closed.');
-            }}>
+            onRequestClose={() => {this.setModalVisible(!this.state.modalVisible)} }>
             <View>
               <Header>
                 <Left>
@@ -309,7 +271,7 @@ export default class ViewContent extends React.Component {
                   </Button>
                 </Left>
                 <Body style={{flex: 3}}>
-                  <Title>Your Reaction!</Title>
+                  <Title>Send it!</Title>
                 </Body>
                 <Right />
               </Header>
