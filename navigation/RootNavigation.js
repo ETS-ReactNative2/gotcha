@@ -4,6 +4,8 @@ import { Dimensions, TouchableOpacity } from 'react-native'
 import { StackNavigator } from 'react-navigation';
 
 import MainTabNavigator from './MainTabNavigator';
+import HomeScreenNavigation from './HomeScreenNavigation';
+
 // import LoginScreen from '../screens/LoginScreen'
 
 import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync';
@@ -60,7 +62,8 @@ firebase.auth().onAuthStateChanged((user) => {
 const RootStackNavigator = StackNavigator(
   {
     Main: {
-      screen: MainTabNavigator,
+      // screen: MainTabNavigator,
+      screen: HomeScreenNavigation,
     },
   },
   {
@@ -166,7 +169,7 @@ export default class RootNavigator extends React.Component {
       return (
       <Container>
         <Content contentContainerStyle={{alignItems: 'center', backgroundColor: '#0678A5', height: Dimensions.get('screen').height }} >
-          <Thumbnail square source={require('../assets/images/icon.png')} />
+          <Thumbnail square source={require('../assets/images/gotcha-logo.png')} />
           <Button block onPress={this.logIn.bind(this)} >
             <Text>Login with Facebook</Text>
           </Button>

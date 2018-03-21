@@ -18,11 +18,12 @@ import { Container, Content, Card, CardItem, Thumbnail, Header, Title, Button, L
 import { MonoText } from '../components/StyledText';
 import FromClipboard from '../components/FromClipboard'
 
-const imagePlaceholder = require('../assets/images/image-placeholder.jpg')
-
 import { StackNavigator } from 'react-navigation';
 import ViewContent from './ViewContent'
 import SideBar from './SideBar'
+
+import Swiper from 'react-native-swiper';
+
 
 const App = StackNavigator({
   ViewContent: { screen: ViewContent}
@@ -36,7 +37,7 @@ export default class HomeScreen extends React.Component {
         {
           userPoster: {
             name: 'Gotcha',
-            profileImage: 'https://scontent.fyvr4-1.fna.fbcdn.net/v/t1.0-1/p240x240/29387079_122176835288811_6530670860750028800_n.jpg?_nc_cat=0&oh=f915acf4f33885dcf89e6fcbe3a71077&oe=5B3BF82E',
+            profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
           },
           content: {
             type: 'image',
@@ -53,6 +54,7 @@ export default class HomeScreen extends React.Component {
 
   async componentWillMount() {
     await Expo.Font.loadAsync({
+      Arial: require('../assets/fonts/Arial.ttf'),
       Roboto: require('../node_modules/native-base/Fonts/Roboto.ttf'),
       Roboto_medium: require('../node_modules/native-base/Fonts/Roboto_medium.ttf'),
       Ionicons: require('@expo/vector-icons/fonts/Ionicons.ttf'),
@@ -143,40 +145,57 @@ export default class HomeScreen extends React.Component {
         ref={(ref) => { this.drawer = ref; }}
         content={<SideBar user={this.props.screenProps.user} logout={this.props.screenProps.logout}/>}
         onClose={() => this.closeDrawer()} >
-        <Container>
-          <Header hasSegment>
-            <Left >
-              <Button onPress={this.openDrawer} >
-                <Entypo 
-                  style={{fontSize: 25, color: 'white'}} 
-                  name='menu' />
-              </Button>
-            </Left >
-            <Body style={{alignItems: 'center'}}>
-              <Title>Gotcha</Title>
-            </Body>
-            <Right />
-          </Header>
-          <Content>
-            <ScrollView style={styles.container}>
-              {feedsJSX}
-              <View style={styles.getStartedContainer}>
-                {/* <TouchableOpacity
-                  // style={[{ flex: 0.3, alignSelf: 'flex-end' }]}
-                  onPress={this._getContent.bind(this)}>
-                  <Ionicons name="ios-radio-button-on-outline" size={32} color="green" />
-                </TouchableOpacity> */}
-                {/* <FromClipboard clipboard={this.state.clipboard} /> */}
-              </View>
-            </ScrollView>
-          </Content>
-        </Container>
-      </Drawer>
+        <Swiper 
+          showsButtons={false}
+          loop={false}
+          showsPagination={false} >
+          <View style={styles.slide1}>
+            <Container>
+              <Header hasSegment>
+                <Left >
+                  <Button onPress={this.openDrawer} >
+                    <Entypo 
+                      style={{fontSize: 25, color: 'white'}} 
+                      name='menu' />
+                  </Button>
+                </Left >
+                <Body style={{alignItems: 'center'}}>
+                  <Title>Gotcha</Title>
+                </Body>
+                <Right />
+              </Header>
+              <Content>
+                <ScrollView style={styles.container}>
+                  {feedsJSX}
+                </ScrollView>
+              </Content>
+            </Container>
+          </View>
+        <View style={styles.slide2}>
+          <Text style={styles.text}>Beautiful</Text>
+        </View>
+      </Swiper>
+    </Drawer>
+
     );
   }
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+  },
+  slide1: {
+    flex: 1,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // backgroundColor: '#9DD6EB',
+  },
+  slide2: {
+    flex: 1,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // backgroundColor: '#97CAE5',
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
