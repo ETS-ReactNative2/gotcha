@@ -1,4 +1,4 @@
-import { Notifications, Facebook } from 'expo';
+import { Notifications, Facebook, AppLoading } from 'expo';
 import React from 'react';
 import { Dimensions, TouchableOpacity } from 'react-native'
 import { StackNavigator } from 'react-navigation';
@@ -11,6 +11,7 @@ import registerForPushNotificationsAsync from '../api/registerForPushNotificatio
 import { Container, Header, Content, Thumbnail, Text, Button } from 'native-base';
 
 import * as firebase from 'firebase';
+console.disableYellowBox = true;
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -23,6 +24,9 @@ const firebaseConfig = {
 if (firebase.apps.length === 0) {
   firebase.initializeApp(firebaseConfig);
 }
+
+
+
 
 function storeUserData(user, data) {
   if (user != null) {
@@ -157,7 +161,7 @@ export default class RootNavigator extends React.Component {
         }} />
     } else {
       if (this.state.loading) {
-        return <Expo.AppLoading />;
+        return <AppLoading />;
       }
       return (
       <Container>

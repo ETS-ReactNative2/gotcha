@@ -5,6 +5,35 @@ import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 
 import { Constants, FileSystem, Camera, Permissions, ImageManipulator } from 'expo'
 
+import * as firebase from 'firebase'
+// import FirebaseStorage from 'firebase'
+
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBWlhoHRN3YtIamdrrdntfd03Y5TZHQTWs",
+  authDomain: "gotchaapp-2018.firebaseapp.com",
+  databaseURL: "https://gotchaapp-2018.firebaseio.com",
+  storageBucket: "gotchaapp-2018.appspot.com"
+};
+
+if (firebase.apps.length === 0) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+
+// Get the data from an ImageView as bytes
+// imageView.setDrawingCacheEnabled(true);
+// imageView.buildDrawingCache();
+// Bitmap bitmap = imageView.getDrawingCache();
+// ByteArrayOutputStream baos = new ByteArrayOutputStream();
+// bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+// byte[] data = baos.toByteArray();
+
+// let storage = firebase.storage()
+// console.log('Hello')
+// console.log(storage.ref('images/wink.png'))
+
+
 export default class ViewContent extends React.Component {
   constructor() {
     super()
@@ -65,9 +94,10 @@ export default class ViewContent extends React.Component {
     if (this.camera) {
       // let photo = await this.camera.takePictureAsync()
       // console.log(photo)
-      this.camera.takePictureAsync().then(data => {
+      this.camera.takePictureAsync({ base64: true }).then(data => {
         console.log("took the photo...")
         console.log(data.uri)
+        // console.log(data)
         FileSystem.moveAsync({
           from: data.uri,
           // to: `${FileSystem.documentDirectory}photos/Photo_${this.state.photoId}.jpg`,
@@ -132,23 +162,105 @@ export default class ViewContent extends React.Component {
     this.snapshots = false 
   }
 
+  convertToByteArray = (input) => {
+    var binary_string = this.atob(input);
+    var len = binary_string.length;
+    var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++) {
+      bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes
+  }
+  
+  atob = (input) => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+    let str = input.replace(/=+$/, '');
+    let output = '';
+
+    // if (str.length % 4 == 1) {
+    //   throw new Error("'atob' failed: The string to be decoded is not correctly encoded.");
+    // }
+    for (let bc = 0, bs = 0, buffer, i = 0;
+      buffer = str.charAt(i++);
+
+      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
+    ) {
+      buffer = chars.indexOf(buffer);
+    }
+
+    return output;
+  }
+
+
+
   onSend = async (uri) => {
-    // const base64Image = await ImageManipulator.manipulate(uri, [{}], {compress: 0, format: 'jpeg', base64: true})
-    let data = new FormData();
-    data.append('reaction', {
-      uri: uri, // your file path string
-      name: 'my_photo.jpg',
-      type: 'image/jpg'
+    const base64Image = await ImageManipulator.manipulate(uri, [{}], {format: 'jpeg', base64: true}).then(success => {
+      console.log('this is from image manupulator', success.base64 )
+      // firebase.storage().ref('/images/test.jpg').putString('data:image/jpeg;base64,'+success.base64, 'data_url')
+      // Base64 formatted string
+      // let imageRef = firebase.storage().ref().child('firstimage.jpg')
+      // let imagesRef = firebase.storage().ref().child('images/firstimage.jpg')
+      let base64Img = `data:image/jpeg;base64,${success.base64}`
+      let apiUrl = 'https://api.cloudinary.com/v1_1/eugeneyu/image/upload'
+
+      let data = {
+        "file": base64Img,
+        "upload_preset": "tn0itef2",
+      }
+      //Working Fetch!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      // fetch(apiUrl, {
+      //   body: JSON.stringify(data),
+      //   headers: {
+      //     'content-type': 'application/json'
+      //   },
+      //   method: 'POST',
+      // }).then(response => {
+      //   let data = response._bodyText
+      //   console.log(JSON.parse(data).secure_url)
+      // }).catch(err => {
+      //   console.log(err)
+      // })
+
+      // var metadata = {
+      //   contentType: 'image/jpeg',
+      // };
+      
+      // firebase.storage().ref().child('images/firstimage.jpg').put(this.convertToByteArray(success.base64), metadata).then(success => {
+      // // firebase.storage().ref().child('images/firstimage.jpg').putString('data:image/jpeg;base64, ' + success.base64, 'base64', metadata).then(success => {
+      //   console.log(success)
+      //   console.log('Uploaded a base64 string!');
+      // }).catch(error => {
+      //   console.log(error)
+      // })
+      // firebase.storage().ref().put(uri).then(function(snapshot) {
+      //   console.log('Uploaded a blob or file!');
+      // });
     })
-    fetch('https://test.com', {
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'multipart/form-data'
-      },
-      method: 'POST',
-      body: data
-    });
-    // console.log(base64Image)
+      // console.log(data)
+  //   const data = new FormData();
+  //   data.append('reaction', {
+  //     uri: uri, // your file path string
+  //     name: 'my_photo.jpg',
+  //     type: 'image/jpeg'
+  //   })
+    
+  //   fetch('https://gotcha-2018.herokuapp.com/imageblob', {
+  //     headers: {
+  //       'Accept': 'application/json',
+  //       'Content-Type': 'multipart/form-data'
+  //     },
+  //     method: 'POST',
+  //     body: JSON.stringify(data)
+  //   }).then(res => {
+  //     console.log('heloooooooooooooooooooooooooo')
+  //     console.log(res)
+  //   }).catch(err => {
+  //     console.log(err)
+  //   })
+  //   // console.log(example)
+  //   // console.log(base64Image)
   }
 
   setModalVisible(visible, uri) {
