@@ -74,41 +74,44 @@ export default class ViewContent extends React.Component {
   }
 
   async componentWillUnmount() {
-    let allFiles = await FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}photos`).then(directoryContents => {
-      console.log(directoryContents)
-      directoryContents.forEach(filename => {
-        // console.log(filename)
-        FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/${filename}`).then(success=> {
-          console.log(`Deleted ${filename}...`)
-        }).catch(err => {
-          console.log(err)
-        })
-      })
+    await FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos`).then(success=> {
+      console.log(`Deleted the folder!!`)
     }).catch(err => {
       console.log(err)
     })
+    // let allFiles = await FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}photos`).then(directoryContents => {
+    //   console.log(directoryContents)
+    //   directoryContents.forEach(filename => {
+    //     // console.log(filename)
+    //     FileSystem.deleteAsync(`${FileSystem.documentDirectory}photos/${filename}`).then(success=> {
+    //       console.log(`Deleted ${filename}...`)
+    //     }).catch(err => {
+    //       console.log(err)
+    //     })
+    //   })
+    // }).catch(err => {
+    //   console.log(err)
+    // })
   }
 
   async takePicture() {
-    // console.log(this.camera)
     if (this.camera) {
-      // let photo = await this.camera.takePictureAsync()
-      // console.log(photo)
       this.camera.takePictureAsync({ base64: true }).then(data => {
         console.log("took the photo...")
         console.log(data.uri)
-        // console.log(data)
-        FileSystem.moveAsync({
-          from: data.uri,
-          // to: `${FileSystem.documentDirectory}photos/Photo_${this.state.photoId}.jpg`,
-          to: `${FileSystem.documentDirectory}photos/Photo_${this.state.photoId}.jpg`,
-        }).then(() => {
-          // console.log("moved the photo...")
-          this.setState({
-            photoId: this.state.photoId + 1,
-            photos: this.state.photos.concat(`${FileSystem.documentDirectory}photos/Photo_${this.state.photoId}.jpg`)
-          });
-        }).catch((err) => {console.log(err)})
+        this.setState({
+          photoId: this.state.photoId + 1,
+          photos: this.state.photos.concat(data.uri)
+        })
+        // FileSystem.moveAsync({
+        //   from: data.uri,
+        //   to: `${FileSystem.documentDirectory}photos/Photo_${this.state.photoId}.jpg`,
+        // }).then(() => {
+        //   this.setState({
+        //     photoId: this.state.photoId + 1,
+        //     photos: this.state.photos.concat(`${FileSystem.documentDirectory}photos/Photo_${this.state.photoId}.jpg`)
+        //   });
+        // }).catch((err) => {console.log(err)})
       }).catch(err => {
         console.log(err)
       })
@@ -196,8 +199,9 @@ export default class ViewContent extends React.Component {
 
 
   onSend = async (uri) => {
-    const base64Image = await ImageManipulator.manipulate(uri, [{}], {format: 'jpeg', base64: true}).then(success => {
-      console.log('this is from image manupulator', success.base64 )
+    console.log(uri)
+    const base64Image = await ImageManipulator.manipulate(uri, [{resize: {width: 500}}], {format: 'jpeg', base64: true}).then(success => {
+      // console.log('this is from image manupulator', success.base64 )
       // firebase.storage().ref('/images/test.jpg').putString('data:image/jpeg;base64,'+success.base64, 'data_url')
       // Base64 formatted string
       // let imageRef = firebase.storage().ref().child('firstimage.jpg')
@@ -210,18 +214,18 @@ export default class ViewContent extends React.Component {
         "upload_preset": "tn0itef2",
       }
       //Working Fetch!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      // fetch(apiUrl, {
-      //   body: JSON.stringify(data),
-      //   headers: {
-      //     'content-type': 'application/json'
-      //   },
-      //   method: 'POST',
-      // }).then(response => {
-      //   let data = response._bodyText
-      //   console.log(JSON.parse(data).secure_url)
-      // }).catch(err => {
-      //   console.log(err)
-      // })
+      fetch(apiUrl, {
+        body: JSON.stringify(data),
+        headers: {
+          'content-type': 'application/json'
+        },
+        method: 'POST',
+      }).then(response => {
+        let data = response._bodyText
+        console.log(JSON.parse(data).secure_url)
+      }).catch(err => {
+        console.log(err)
+      })
 
       // var metadata = {
       //   contentType: 'image/jpeg',
@@ -273,7 +277,9 @@ export default class ViewContent extends React.Component {
   render() {
     const { hasCameraPermission } = this.state;
     console.log('pressStatus', this.state.pressStatus)
-    FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}photos`).then(files => {
+    console.log('modalUri', this.state.modalUri)
+    // FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}photos`).then(files => {
+    FileSystem.readDirectoryAsync(FileSystem.cacheDirectory+'Camera').then(files => {
       console.log(files)
     })
     /* 2. Read the params from the navigation state */
