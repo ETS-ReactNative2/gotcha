@@ -1,12 +1,10 @@
-import { Notifications, Facebook, AppLoading } from 'expo';
 import React from 'react';
-import { Dimensions, TouchableOpacity } from 'react-native'
+import { Notifications, Facebook, AppLoading } from 'expo';
+import { Dimensions, TouchableOpacity, Image } from 'react-native'
 import { StackNavigator } from 'react-navigation';
 
 import MainTabNavigator from './MainTabNavigator';
 import HomeScreenNavigation from './HomeScreenNavigation';
-
-// import LoginScreen from '../screens/LoginScreen'
 
 import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync';
 
@@ -226,6 +224,18 @@ export default class RootNavigator extends React.Component {
           const { name, id } = JSON.parse(success._bodyInit)
           let userRef = firebase.database().ref(`users/${id}`)
           let feedsRef = firebase.database().ref('feeds/')
+          
+          feedsRef.once('value', (snapshot) => {
+            this.setState({
+              feeds: snapshot.val()
+            })
+          })
+
+          userRef.once('value', (snapshot) => {
+            this.setState({
+              user: snapshot.val()
+            })
+          })
 
           feedsRef.on('value', (snapshot) => {
             this.setState({
@@ -261,15 +271,24 @@ export default class RootNavigator extends React.Component {
         }} />
     } else {
       if (this.state.loading) {
-        return <AppLoading />;
+        return <AppLoading  />;
       }
       return (
-      <Container>
-        <Content contentContainerStyle={{alignItems: 'center', backgroundColor: '#0678A5', height: Dimensions.get('screen').height }} >
-          <Thumbnail square source={require('../assets/images/gotcha-logo.png')} />
-          <Button block onPress={this.logIn.bind(this)} >
-            <Text>Login with Facebook</Text>
-          </Button>
+      <Container >
+        <Content 
+          scrollEnabled={false} 
+          contentContainerStyle={{
+            alignItems: 'center', 
+            backgroundColor: '#fa8700', 
+            height: Dimensions.get('screen').height,
+            paddingVertical: Dimensions.get('screen').height/5
+          }} >
+          <Thumbnail style={{width: 125, height: 125 }} large source={require('../assets/images/gotcha-logo.png')} />
+          <TouchableOpacity onPress={this.logIn.bind(this)} >
+            <Button rounded disabled primary >
+              <Text>Login with Facebook</Text>
+            </Button>
+          </TouchableOpacity>
         </Content>
       </Container>
       )
