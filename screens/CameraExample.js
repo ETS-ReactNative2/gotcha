@@ -1,16 +1,31 @@
 import React from 'react';
-import { StyleSheet, Text, Image, View, TouchableOpacity, Vibration } from 'react-native';
-import { Constants, Camera, FileSystem, Permissions } from 'expo';
+import { StyleSheet, Image, View, TouchableOpacity, Vibration, Dimensions, Modal } from 'react-native';
+import { Constants, Camera, FileSystem, Permissions, ImageManipulator } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
+import { Text, Container, Content, Card, CardItem, Thumbnail, Header, Title, Button, Left, Right, Body, Icon, Footer, FooterTab, Form, Item, Input } from 'native-base';
+import * as firebase from 'firebase'
+// import FirebaseStorage from 'firebase'
 
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBWlhoHRN3YtIamdrrdntfd03Y5TZHQTWs",
+  authDomain: "gotchaapp-2018.firebaseapp.com",
+  databaseURL: "https://gotchaapp-2018.firebaseio.com",
+  storageBucket: "gotchaapp-2018.appspot.com"
+};
+
+if (firebase.apps.length === 0) {
+  firebase.initializeApp(firebaseConfig);
+}
 
 export default class CameraExample extends React.Component {
   state = {
     hasCameraPermission: null,
     type: Camera.Constants.Type.front,
     photoId: 1,
-    lastPhotoURI: null
-
+    photoUri: null,
+    modalVisible: false,
+    title: ''
   };
 
   async componentWillMount() {
@@ -25,40 +40,88 @@ export default class CameraExample extends React.Component {
   }
 
   takePicture = async function() {
+    this.setState({
+      modalVisible: true
+    })
     if (this.camera) {
       this.camera.takePictureAsync().then(data => {
-        FileSystem.moveAsync({
-          from: data.uri,
-          to: `${FileSystem.documentDirectory}photos/Photo_${this.state.photoId}.jpg`,
-        }).then(() => {
-
-          this.setState({
-            photoId: this.state.photoId + 1,
-            lastPhotoURI: `${FileSystem.documentDirectory}photos/Photo_${this.state.photoId}.jpg`
-          });
-          console.log(this.state.photoId)
-          // Vibration.vibrate();
-        })
+        this.setState({
+          photoId: this.state.photoId + 1,
+          photoUri: data.uri,
+        });
       });
     }
   };
 
-  render() {
-    const styles = StyleSheet.create({
-      flipButton: {
-        flex: 0.3,
-        height: 40,
-        marginHorizontal: 2,
-        // marginBottom: 10,
-        // marginTop: 20,
-        borderRadius: 8,
-        borderColor: 'white',
-        borderWidth: 1,
-        padding: 5,
-        alignItems: 'center',
-        justifyContent: 'center',
+  setModalVisible(visible) {
+    this.setState({
+      modalVisible: visible,
+    });
+    if(visible === false) {
+      this.setState({
+        title: ''
+      })
+    }
+  }
+
+  onPost = async () => {
+    const uri = this.state.photoUri
+    const { title } = this.state
+    const { uid, name, photoURL } = this.props.user
+    const index = this.state.index
+    const base64Image = await ImageManipulator.manipulate(uri, [{resize: {width: 500}}], {format: 'jpeg', base64: true}).then(success => {
+      let base64Img = `data:image/jpeg;base64,${success.base64}`
+      let apiUrl = 'https://api.cloudinary.com/v1_1/eugeneyu/image/upload'
+
+      let data = {
+        "file": base64Img,
+        "upload_preset": "tn0itef2",
       }
+      // Working Fetch!
+      fetch(apiUrl, {
+        body: JSON.stringify(data),
+        headers: {
+          'content-type': 'application/json'
+        },
+        method: 'POST',
+      }).then(response => {
+        let data = response._bodyText
+        let imageURL = JSON.parse(data).secure_url
+        console.log(imageURL)
+
+        let feedData = {
+          userPoster: {
+            name: { first: name.first, last: name.last },
+            profileImage: photoURL,
+          },
+          content: {
+            type: 'image',
+            title: title,
+            data: imageURL,
+            dated: new Date()
+          },
+          reactions: [],
+          readState: false
+        }
+        let newFeedKey = firebase.database().ref('feeds/').push().key;
+        let updates = {};
+        updates['feeds/' + newFeedKey] = feedData;
+        firebase.database().ref().update(updates);
+      }).catch(err => {
+        console.log(err)
+      })
+      this.setModalVisible(!this.state.modalVisible)
     })
+  }
+
+  onChange = (title) => {
+    console.log(title)
+    this.setState({
+      title: title
+    })
+  }
+
+  render() {
     const { hasCameraPermission } = this.state;
     if (hasCameraPermission === null) {
       return <View />;
@@ -66,41 +129,94 @@ export default class CameraExample extends React.Component {
       return <Text>No access to camera</Text>;
     } else {
       return (
-        <View style={{ flex: 1}}>
-          <Camera style={{ flex: 1, height: 200, width: 150, alignSelf: 'center' }} type={this.state.type} ref={ref => { this.camera = ref; }}>
-            <View
+        <Container>
+          <Modal
+            animationType="fade"
+            transparent={false}
+            visible={this.state.modalVisible}
+            onRequestClose={() => {this.setModalVisible(!this.state.modalVisible)} }>
+            <View>
+              <Header>
+                <Left>
+                  <Button transparent onPress={() => { this.setModalVisible(!this.state.modalVisible) }}>
+                    <Icon name='arrow-back'/>
+                  </Button>
+                </Left>
+                <Body style={{flex: 3}}>
+                  <Title>Upload to Gotcha!</Title>
+                </Body>
+                <Right />
+              </Header>
+            </View>
+            <Content>
+              {this.state.photoUri && 
+                <Image 
+                  source={{uri: this.state.photoUri }} 
+                  style={{ height: Dimensions.get('screen').height/2, width: Dimensions.get('screen').width }}/>
+              }
+              <Form>
+                <Item success>
+                  <Input placeholder="Give it a title!" onChangeText={(title) => this.setState({ title: title }) } value={this.state.title} />
+                  {/* <Icon name='checkmark-circle' /> */}
+                </Item>
+              </Form>
+            </Content>
+            <Footer style={{backgroundColor: 'transparent', height: 70}} >
+              <FooterTab style={{backgroundColor: 'transparent'}} >
+                <Button disabled transparent />
+                <TouchableOpacity onPress={this.onPost}>
+                  <Button disabled transparent style={{paddingBottom: 20}} >
+                    <Thumbnail source={{uri: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521716342/gotcha-send.png'}} />
+                  </Button>
+                </TouchableOpacity>
+                <Button disabled transparent />
+              </FooterTab>
+            </Footer>
+          </Modal>
+          <Content>
+           <View style={{ flex: 1}}>
+            <Camera 
               style={{
-                flex: 1,
-                backgroundColor: 'transparent',
-                flexDirection: 'row',
-              }}>
-              <Image source={{uri: this.state.lastPhotoURI }} style={{height: 150, width: null, flex: 1}}/>
-              <TouchableOpacity
-                style={[{ flex: 0.3, alignSelf: 'flex-end' }]}
-                onPress={this.takePicture.bind(this)}>
-                <Ionicons name="ios-radio-button-on-outline" size={32} color="green" />
-              </TouchableOpacity>
-              <TouchableOpacity
+                alignSelf: 'center',
+                height: Dimensions.get('screen').height, 
+                width: Dimensions.get('screen').height/4*3, 
+              }} 
+              type={this.state.type} ref={ref => { this.camera = ref; }} >
+              <View
                 style={{
-                  flex: 0.1,
-                  alignSelf: 'flex-end',
-                  alignItems: 'center',
-                }}
-                onPress={() => {
+                  flex: 1,
+                  backgroundColor: 'transparent',
+                  flexDirection: 'row',
+                }}>
+                
+              </View>
+            </Camera>
+          </View>
+          </Content>
+          <Footer style={{backgroundColor: 'black'}} >
+            <FooterTab style={{backgroundColor: 'black'}} >
+              <Button disabled transparent  />
+              <TouchableOpacity style={{ flex: 1 }}
+                onPress={this.takePicture.bind(this)} > 
+                <Button disabled transparent  >
+                  <Ionicons name="ios-radio-button-on-outline" size={55} color='white' />
+                </Button>
+              </TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1 }}
+                onPressOut={() => {
                   this.setState({
                     type: this.state.type === Camera.Constants.Type.back
                       ? Camera.Constants.Type.front
                       : Camera.Constants.Type.back,
-                  });
+                    });
                 }}>
-                <Text
-                  style={{ fontSize: 18, marginBottom: 10, color: 'white' }}>
-                  {' '}Flip{' '}
-                </Text>
+                <Button disabled transparent >
+                  <Ionicons name='ios-reverse-camera' size={32} color='white' />
+                </Button>
               </TouchableOpacity>
-            </View>
-          </Camera>
-        </View>
+            </FooterTab>
+          </Footer>
+        </Container>
       );
     }
   }

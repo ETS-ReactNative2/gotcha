@@ -154,12 +154,10 @@ export default class ViewContent extends React.Component {
     this.snapshots = false 
   }
 
- 
-
-
   onSend = async (uri) => {
     console.log(uri)
-    const { uid, name } = this.props.screenProps.user
+    const { feedUid, type } = this.props.navigation.state.params;
+    const { uid, name, photoURL } = this.props.screenProps.user
     const index = this.state.index
     const base64Image = await ImageManipulator.manipulate(uri, [{resize: {width: 500}}], {format: 'jpeg', base64: true}).then(success => {
       let base64Img = `data:image/jpeg;base64,${success.base64}`
@@ -183,23 +181,20 @@ export default class ViewContent extends React.Component {
 
         let reactionData = {
           date: new Date(),
-          from: { uid: uid, name: name },
-          type: 'image',
+          from: { uid: uid, name: name, photoURL: photoURL },
+          type: type,
           url: imageURL
         }
 
         // Get a key for a new Reaction.
-        let newReactionsKey = firebase.database().ref(`users/${uid}/${index}/reactions`).push().key;
+        let newReactionsKey = firebase.database().ref(`feeds/${feedUid}/reactions`).push().key;
         // Write the new post's data simultaneously in the posts list and the user's post list.
         let updates = {};
-        updates[`/users/${uid}/feeds/${index}/reactions/` + newReactionsKey] = reactionData;
+        updates[`/feeds/${feedUid}/reactions/` + newReactionsKey] = reactionData;
 
         return firebase.database().ref().update(updates);
 
 
-        // firebase.database().ref(`users/${uid}/${index}/reactions`).transaction(function(){
-        //   return imageURL
-        // })
       }).catch(err => {
         console.log(err)
       })
@@ -236,7 +231,6 @@ export default class ViewContent extends React.Component {
   //     method: 'POST',
   //     body: JSON.stringify(data)
   //   }).then(res => {
-  //     console.log('heloooooooooooooooooooooooooo')
   //     console.log(res)
   //   }).catch(err => {
   //     console.log(err)
@@ -264,7 +258,9 @@ export default class ViewContent extends React.Component {
     const media = params ? params.media : null;
     const headline = params ? params.headline : null;
     const index = params ? params.index : null;
+    const feedUid = params ? params.feedUid : null;
 
+    console.log(feedUid)
     if (hasCameraPermission === null) {
       return <View />;
     } else if (hasCameraPermission === false) {
@@ -346,22 +342,21 @@ export default class ViewContent extends React.Component {
                       onPress={() => {
                         this.setModalVisible(true, photo, index);
                       }}>
-                      {/* onPress={() => { this.onSaveImage(photo) }}> */}
                       <Image 
                         source={{uri: photo }} 
-                        style={{height: 50, width: 50}}
+                        style={{height: Dimensions.get('screen').height/9, width: Dimensions.get('screen').width/6}}
                       />
                     </TouchableOpacity>
                     )
                   })}
-                  <View>
-                    <Camera
-                      ref={self => { this.camera = self }}
-                      style={{ flex: 1, height: null, width: null, alignSelf: 'center' }}
-                      type={this.state.type} />
-                  </View>
                 </View>
               </ScrollView>
+              <View style={{ display: 'none' }} >
+                <Camera
+                  ref={self => { this.camera = self }}
+                  style={{ flex: 1, height: 40, width: 30 }}
+                  type={this.state.type} />
+              </View>
             </View>
           </Content>
           <Footer style={{backgroundColor: 'transparent'}} >

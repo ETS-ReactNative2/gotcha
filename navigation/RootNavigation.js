@@ -31,9 +31,48 @@ function storeUserData(user, data) {
   if (user != null) {
     firebase.database().ref('users/' + user.providerData[0].uid).set({
       data: data
-    });
+    }); 
   }
 }
+
+// let feedsData1 = {
+//   userPoster: {
+//     name: { first: 'Gotcha', last: null },
+//     profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
+//   },
+//   content: {
+//     type: 'image',
+//     title: 'Much Wow!',
+//     data: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521657919/dogefeed.png',
+//     dated: new Date()
+//   },
+//   reactions: [],
+//   readState: false
+// }
+
+// let feedsData2 = {
+//   userPoster: {
+//     name: { first: 'Gotcha', last: null },
+//     profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
+//   },
+//   content: {
+//     type: 'image',
+//     title: 'The cutest cat ever!',
+//     data: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg',
+//     dated: new Date()
+//   },
+//   reactions: [],
+//   readState: false
+// }
+
+// // Get a key for a new Feed.
+// let newFeedKey1 = firebase.database().ref('feeds/').push().key;
+// let newFeedKey2 = firebase.database().ref('feeds/').push().key;
+// let updates = {};
+// updates['feeds/' + newFeedKey1] = feedsData1;
+// updates['feeds/' + newFeedKey2] = feedsData2
+// firebase.database().ref().update(updates);
+
 
 function setupDataListener(userId) {
   firebase.database().ref('users/' + userId).on('value', (snapshot) => {
@@ -41,8 +80,6 @@ function setupDataListener(userId) {
     console.log("New data: " + data);
   });
 }
-
-
 
 
 // Listen for authentication state to change.
@@ -61,36 +98,36 @@ firebase.auth().onAuthStateChanged((user) => {
           photoURL: photoURL,
           providerId: providerId,
           uid: uid,
-          feeds: [
-            {
-              userPoster: {
-                name: { first: 'Gotcha', last: null },
-                profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
-              },
-              content: {
-                type: 'image',
-                title: 'Much Wow!',
-                data: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521657919/dogefeed.png',
-                dated: new Date().toDateString()
-              },
-              reactions: [],
-              readState: false
-            },
-            {
-              userPoster: {
-                name: { first: 'Gotcha', last: null },
-                profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
-              },
-              content: {
-                type: 'image',
-                title: 'The cutest cat ever!',
-                data: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg',
-                dated: new Date().toDateString()
-              },
-              reactions: [],
-              readState: false
-            }
-          ],
+          // feeds: [
+          //   {
+          //     userPoster: {
+          //       name: { first: 'Gotcha', last: null },
+          //       profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
+          //     },
+          //     content: {
+          //       type: 'image',
+          //       title: 'Much Wow!',
+          //       data: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521657919/dogefeed.png',
+          //       dated: new Date().toDateString()
+          //     },
+          //     reactions: [],
+          //     readState: false
+          //   },
+          //   {
+          //     userPoster: {
+          //       name: { first: 'Gotcha', last: null },
+          //       profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
+          //     },
+          //     content: {
+          //       type: 'image',
+          //       title: 'The cutest cat ever!',
+          //       data: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg',
+          //       dated: new Date().toDateString()
+          //     },
+          //     reactions: [],
+          //     readState: false
+          //   }
+          // ],
           lastLogin: new Date().toString(),
         };
       } else {
@@ -109,24 +146,10 @@ firebase.auth().onAuthStateChanged((user) => {
       } else {
         console.log(`User ${displayName} added!`);
       }
-      // var feedsRef = firebase.database().ref(`users/${uid}`);
-      // feedsRef.on('value', function(snapshot) {
-      //   console.log(snapshot.val())
-      // })
-      console.log(`${displayName}'s data: `, snapshot.val());
-    });
-
-    
-    // firebase.database().ref(`users/${user.providerData[0].uid}/lastLogin`).transaction(function() {
-    //   return new Date().toDateString()
-    // })
-    // storeUserData(user, user.providerData[0])
-    // firebase.database().ref('users/' + user.providerData.uid).set({
-    //   data: user.providerData
-    // });
+      // console.log(`${displayName}'s data: `, snapshot.val());
+    })
     console.log("We are authenticated now!"); 
   }
-  // Do other things
 });
 
 const RootStackNavigator = StackNavigator(
@@ -200,28 +223,21 @@ export default class RootNavigator extends React.Component {
       const response = await fetch(
         `https://graph.facebook.com/me?access_token=${token}`)
         .then(success => {
-          // console.log(success)
-          // console.log(JSON.parse(success._bodyInit))
           const { name, id } = JSON.parse(success._bodyInit)
-          let feedsRef = firebase.database().ref(`users/${id}`);
+          let userRef = firebase.database().ref(`users/${id}`)
+          let feedsRef = firebase.database().ref('feeds/')
 
           feedsRef.on('value', (snapshot) => {
-            console.log(snapshot.val())
+            this.setState({
+              feeds: snapshot.val()
+            })
+          })
+
+          userRef.on('value', (snapshot) => {
             this.setState({
               user: snapshot.val()
             })
           }) 
-          // const profileImage = fetch(`https://graph.facebook.com//v2.12/${id}/picture?type=normal`).then(res => {
-          //   // console.log(res)
-          //   this.setState({
-          //     user: {
-          //       name: name,
-          //       uid: id,
-          //       photoURL: res.url
-          //     },
-          //     isLoggedIn: true //change back to true!!!!!!!!!
-          //   })      
-          // })
         })
         .catch(err => { console.log(err)})
     }
@@ -236,11 +252,11 @@ export default class RootNavigator extends React.Component {
   }
 
   render() {
-    // console.log(this.state.user)
     if (this.state.isLoggedIn) {
       return <RootStackNavigator 
         screenProps={{
-          user: this.state.user, 
+          user: this.state.user,
+          feeds: this.state.feeds,
           logout: this.logout 
         }} />
     } else {

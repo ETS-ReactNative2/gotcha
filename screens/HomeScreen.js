@@ -21,6 +21,7 @@ import FromClipboard from '../components/FromClipboard'
 import { StackNavigator } from 'react-navigation';
 import ViewContent from './ViewContent'
 import SideBar from './SideBar'
+import CameraExample from './CameraExample'
 
 import Swiper from 'react-native-swiper';
 
@@ -86,16 +87,27 @@ export default class HomeScreen extends React.Component {
 
   render() { 
     const { name, uid, image } = this.props.screenProps.user
-    console.log(name, uid, image)
     const logout  = this.props.screenProps.logout
-    // const { feeds } = this.state
-    const { feeds } = this.props.screenProps.user
-    console.log(feeds)
-    // if (feeds.reactions) console.log('total reactions: ', feeds[0].reactions.length)
-    let feedsJSX = feeds.map((feed, i) => {
-      // console.log(feed.content) 
+    // const { feeds } = this.props.screenProps.user
+
+    const globalfeeds = this.props.screenProps.feeds
+    let feedsMap = new Map(Object.entries(globalfeeds))
+    // let feedsKeyMap = new Map(Object.keys(globalfeeds))
+    
+    let feedsKeyArray = [...feedsMap.entries()] 
+    let feedsArray = [...feedsMap.values()]
+    // console.log(feedsKeyArray)
+
+    let feedKeys = feedsKeyArray.map(feedArray => {
+      return feedArray[0]
+    })
+    console.log(feedKeys)
+    // console.log(feedsArray)
+    // console.log('globalfeeds', globalfeeds)
+    let feedsJSX = feedsArray.map((feed, i) => {
+      const hasReaction = feed.reactions
       return (
-        <Card key={i} >
+        <Card key={feedKeys[i]} >
           <CardItem>
             <Left>
               <Thumbnail source={{ uri: feed.userPoster.profileImage}} />
@@ -106,40 +118,58 @@ export default class HomeScreen extends React.Component {
             </Left>
           </CardItem>
           <CardItem cardBody>
-            {/* <Image source={require('../assets/images/image-placeholder.jpg')} style={{height: 200, width: null, flex: 1}}/> */}
             <Image 
-                source={{uri: feed.content.data}}
-                style={{height: Dimensions.get('screen').height/3, flex: 1 }}
-                // resizeMode={'contain'}
-                blurRadius={this.state.pressStatus? 0 : Platform.OS === 'ios' ? 70 : 10}
-              />
+              source={{uri: feed.content.data}}
+              style={{height: Dimensions.get('screen').height/3, flex: 1 }}
+              // resizeMode={'contain'}
+              blurRadius={this.state.pressStatus? 0 : Platform.OS === 'ios' ? 70 : 10}
+            />
           </CardItem>
           <CardItem>
             <Left >
-              <Button transparent >
-                <Octicons style={{fontSize: 30, textAlign: 'center'}} name='smiley'/>
-              </Button>
-              {feeds[i].reactions && (
-                <Badge style={{top: -5, left: -30, width: 25, height: 25}}>
-                  <Text style={{fontSize: 13}} >{Object.keys(feeds[i].reactions).length}</Text>
-                </Badge>) 
-              }
+              <TouchableOpacity
+                disabled={!feed.reactions}
+                // { ...!hasReaction && disabled }
+                onPress={() => {
+                  this.props.navigation.navigate('ViewReactions', {
+                    reactions: feed.reactions,
+                    index: i
+                  })
+                }} >
+                <Button disabled transparent style={{ paddingVertical: 5 }} >
+                  <Octicons 
+                    style={feed.reactions 
+                      ? {fontSize: 30, textAlign: 'center', color: 'black' }
+                      : {fontSize: 30, textAlign: 'center', color: 'lightgrey' }} 
+                    name='smiley' 
+                  />
+                  {feed.reactions && (
+                    <Badge style={{top: -5, left: -10, width: 23, height: 23, zIndex: 10}}>
+                      <Text style={{fontSize: 12}} >{Object.keys(feed.reactions).length}</Text>
+                    </Badge>) 
+                  }
+                </Button>
+              </TouchableOpacity>
             </Left>
             <Body >
-              <Button transparent onPress={() => {
-                this.props.navigation.navigate('ViewContent', {
-                  headline: feed.content.title,
-                  type: feed.content.title.type,
-                  media: feed.content.data,
-                  index: i
-                })
-              }}
-                style={{justifyContent: 'center'}}>
-                <FontAwesome style={{fontSize: 50}} name='eye'/>
-              </Button>
+              <TouchableOpacity 
+                onPress={() => {
+                  this.props.navigation.navigate('ViewContent', {
+                    headline: feed.content.title,
+                    type: feed.content.type,
+                    media: feed.content.data,
+                    index: i,
+                    feedUid: feedKeys[i]
+                  })
+                }} >
+                <Button disabled transparent 
+                  style={{justifyContent: 'center' }}>
+                  <FontAwesome style={{fontSize: 50}} name='eye'/>
+                </Button>
+              </TouchableOpacity>
             </Body>
-            <Right>
-              <Text>{feed.content.dated}</Text>
+            <Right style={{flex: 0.5}} >
+              <Text style={{ fontSize: 12, alignContent: 'center', left: 1 }} >{feed.content.dated}</Text>
             </Right>
           </CardItem>
         </Card>
@@ -155,14 +185,17 @@ export default class HomeScreen extends React.Component {
         content={<SideBar user={this.props.screenProps.user} logout={this.props.screenProps.logout}/>}
         onClose={() => this.closeDrawer()} >
         <Swiper 
+          style={{backgroundColor: 'transparent'}}
+          loadMinimal={true}
+          loadMinimalSize={0}
           showsButtons={false}
           loop={false}
           showsPagination={false} >
           <View style={styles.slide1}>
             <Container>
               <Header hasSegment>
-                <Left >
-                  <Button onPress={this.openDrawer} >
+                <Left style={{backgroundColor: 'transparent'}} >
+                  <Button transparent onPress={this.openDrawer} >
                     <Entypo 
                       style={{fontSize: 25, color: 'white'}} 
                       name='menu' />
@@ -181,7 +214,7 @@ export default class HomeScreen extends React.Component {
             </Container>
           </View>
         <View style={styles.slide2}>
-          <Text style={styles.text}>Beautiful</Text>
+          <CameraExample user={this.props.screenProps.user}/>
         </View>
       </Swiper>
     </Drawer>
