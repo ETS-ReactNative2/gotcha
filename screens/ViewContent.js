@@ -45,7 +45,8 @@ export default class ViewContent extends React.Component {
       photoId: 1,
       photos: [],
       modalVisible: false,
-      modalUri: null
+      modalUri: null,
+      index: 0
     }
   }
 
@@ -103,15 +104,6 @@ export default class ViewContent extends React.Component {
           photoId: this.state.photoId + 1,
           photos: this.state.photos.concat(data.uri)
         })
-        // FileSystem.moveAsync({
-        //   from: data.uri,
-        //   to: `${FileSystem.documentDirectory}photos/Photo_${this.state.photoId}.jpg`,
-        // }).then(() => {
-        //   this.setState({
-        //     photoId: this.state.photoId + 1,
-        //     photos: this.state.photos.concat(`${FileSystem.documentDirectory}photos/Photo_${this.state.photoId}.jpg`)
-        //   });
-        // }).catch((err) => {console.log(err)})
       }).catch(err => {
         console.log(err)
       })
@@ -167,6 +159,8 @@ export default class ViewContent extends React.Component {
 
   onSend = async (uri) => {
     console.log(uri)
+    const { uid, name } = this.props.screenProps.user
+    const index = this.state.index
     const base64Image = await ImageManipulator.manipulate(uri, [{resize: {width: 500}}], {format: 'jpeg', base64: true}).then(success => {
       let base64Img = `data:image/jpeg;base64,${success.base64}`
       let apiUrl = 'https://api.cloudinary.com/v1_1/eugeneyu/image/upload'
@@ -175,7 +169,7 @@ export default class ViewContent extends React.Component {
         "file": base64Img,
         "upload_preset": "tn0itef2",
       }
-      //Working Fetch!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      // Working Fetch!
       fetch(apiUrl, {
         body: JSON.stringify(data),
         headers: {
@@ -186,9 +180,26 @@ export default class ViewContent extends React.Component {
         let data = response._bodyText
         let imageURL = JSON.parse(data).secure_url
         console.log(imageURL)
-        firebase.database().ref('users/' + this.props.screenProps.user.id + '/firstReaction').transaction(function(){
-          return imageURL
-        })
+
+        let reactionData = {
+          date: new Date(),
+          from: { uid: uid, name: name },
+          type: 'image',
+          url: imageURL
+        }
+
+        // Get a key for a new Reaction.
+        let newReactionsKey = firebase.database().ref(`users/${uid}/${index}/reactions`).push().key;
+        // Write the new post's data simultaneously in the posts list and the user's post list.
+        let updates = {};
+        updates[`/users/${uid}/feeds/${index}/reactions/` + newReactionsKey] = reactionData;
+
+        return firebase.database().ref().update(updates);
+
+
+        // firebase.database().ref(`users/${uid}/${index}/reactions`).transaction(function(){
+        //   return imageURL
+        // })
       }).catch(err => {
         console.log(err)
       })
@@ -234,10 +245,11 @@ export default class ViewContent extends React.Component {
   //   // console.log(base64Image)
   }
 
-  setModalVisible(visible, uri) {
+  setModalVisible(visible, uri, index) {
     this.setState({
       modalVisible: visible,
-      modalUri: uri
+      modalUri: uri,
+      index: index
     });
   }
 
@@ -251,6 +263,8 @@ export default class ViewContent extends React.Component {
     const type = params ? params.type : null;
     const media = params ? params.media : null;
     const headline = params ? params.headline : null;
+    const index = params ? params.index : null;
+
     if (hasCameraPermission === null) {
       return <View />;
     } else if (hasCameraPermission === false) {
@@ -330,7 +344,7 @@ export default class ViewContent extends React.Component {
                     <TouchableOpacity 
                       key={photo} 
                       onPress={() => {
-                        this.setModalVisible(true, photo);
+                        this.setModalVisible(true, photo, index);
                       }}>
                       {/* onPress={() => { this.onSaveImage(photo) }}> */}
                       <Image 

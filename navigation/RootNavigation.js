@@ -27,9 +27,6 @@ if (firebase.apps.length === 0) {
   firebase.initializeApp(firebaseConfig);
 }
 
-
-
-
 function storeUserData(user, data) {
   if (user != null) {
     firebase.database().ref('users/' + user.providerData[0].uid).set({
@@ -45,12 +42,85 @@ function setupDataListener(userId) {
   });
 }
 
+
+
+
 // Listen for authentication state to change.
 firebase.auth().onAuthStateChanged((user) => {
   if (user != null) { 
-    console.log(user.providerData[0])
-    console.log('this is the user uri', user.providerData[0].uid)
-    storeUserData(user, user.providerData[0])
+    console.log(user.providerData)
+    const { displayName, email, phoneNumber, photoURL, providerId, uid } = user.providerData[0]
+    
+    let userRef = firebase.database().ref(`users/${uid}`)
+    userRef.transaction(function(currentData) {
+      if (currentData === null) {
+        return { 
+          name: { first: displayName.split(' ')[0] , last: displayName.split(' ')[1] },
+          email: email,
+          phoneNumber: phoneNumber,
+          photoURL: photoURL,
+          providerId: providerId,
+          uid: uid,
+          feeds: [
+            {
+              userPoster: {
+                name: { first: 'Gotcha', last: null },
+                profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
+              },
+              content: {
+                type: 'image',
+                title: 'Much Wow!',
+                data: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521657919/dogefeed.png',
+                dated: new Date().toDateString()
+              },
+              reactions: [],
+              readState: false
+            },
+            {
+              userPoster: {
+                name: { first: 'Gotcha', last: null },
+                profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
+              },
+              content: {
+                type: 'image',
+                title: 'The cutest cat ever!',
+                data: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg',
+                dated: new Date().toDateString()
+              },
+              reactions: [],
+              readState: false
+            }
+          ],
+          lastLogin: new Date().toString(),
+        };
+      } else {
+        console.log(`User ${displayName} already exists.`);
+        return; // Abort the transaction.
+      }
+    }, function(error, committed, snapshot) {
+      if (error) {
+        console.log('Transaction failed abnormally!', error);
+      } else if (!committed) {
+        console.log(`We aborted the transaction (because ${displayName} already exists).`);
+        let lastLoginRef = firebase.database().ref(`users/${uid}/lastLogin`)
+        lastLoginRef.transaction(function() {
+          return new Date().toString()
+        })
+      } else {
+        console.log(`User ${displayName} added!`);
+      }
+      // var feedsRef = firebase.database().ref(`users/${uid}`);
+      // feedsRef.on('value', function(snapshot) {
+      //   console.log(snapshot.val())
+      // })
+      console.log(`${displayName}'s data: `, snapshot.val());
+    });
+
+    
+    // firebase.database().ref(`users/${user.providerData[0].uid}/lastLogin`).transaction(function() {
+    //   return new Date().toDateString()
+    // })
+    // storeUserData(user, user.providerData[0])
     // firebase.database().ref('users/' + user.providerData.uid).set({
     //   data: user.providerData
     // });
@@ -111,14 +181,20 @@ export default class RootNavigator extends React.Component {
         permissions: ['public_profile', 'email', 'user_friends'],
       });
     if (type === 'success') {
-
       // Build Firebase credential with the Facebook access token.
       const credential = firebase.auth.FacebookAuthProvider.credential(token);
       // console.log('credential', credential)
-
       // Sign in with credential from the Facebook user.
-      firebase.auth().signInWithCredential(credential).catch((error) => {
+      firebase.auth().signInWithCredential(credential)
+      .then((success) => {
+        console.log('sign in with credential is successful: ', success)
+        this.setState({
+          isLoggedIn: true
+        })
+      })
+      .catch((error) => {
         // Handle Errors here.
+        console.log(error)
       });
       // Get the user's name using Facebook's Graph API
       const response = await fetch(
@@ -127,28 +203,33 @@ export default class RootNavigator extends React.Component {
           // console.log(success)
           // console.log(JSON.parse(success._bodyInit))
           const { name, id } = JSON.parse(success._bodyInit)
-          console.log(id)
-          
+          let feedsRef = firebase.database().ref(`users/${id}`);
 
-          const profileImage = fetch(`https://graph.facebook.com//v2.12/${id}/picture?type=normal`).then(res => {
-            // console.log(res)
+          feedsRef.on('value', (snapshot) => {
+            console.log(snapshot.val())
             this.setState({
-              user: {
-                name: name,
-                id: id,
-                image: res.url
-              },
-              isLoggedIn: true //change back to true!!!!!!!!!
-            })      
-          })
+              user: snapshot.val()
+            })
+          }) 
+          // const profileImage = fetch(`https://graph.facebook.com//v2.12/${id}/picture?type=normal`).then(res => {
+          //   // console.log(res)
+          //   this.setState({
+          //     user: {
+          //       name: name,
+          //       uid: id,
+          //       photoURL: res.url
+          //     },
+          //     isLoggedIn: true //change back to true!!!!!!!!!
+          //   })      
+          // })
         })
         .catch(err => { console.log(err)})
-      // console.log(response)
     }
   }
 
   logout = () => {
     console.log('Logging out...')
+    firebase.auth().signOut()
     this.setState({
       isLoggedIn: false
     })

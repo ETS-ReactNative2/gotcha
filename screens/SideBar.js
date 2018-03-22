@@ -4,7 +4,7 @@ import { Container, Content, Card, CardItem, Thumbnail, Header, Title, Button, L
 
 export default class SideBar extends Component {
   render() {
-    const { name, id, image } = this.props.user
+    const { name, uid, photoURL } = this.props.user
 
     return (
       <Content style={{ flex: 1, backgroundColor: '#FFFFFF', height: Dimensions.get('window').height }} >
@@ -22,8 +22,8 @@ export default class SideBar extends Component {
         </Header>
         <List>
           <ListItem >
-            <Thumbnail style={{width: 50, height: 50}} source={{uri: image}} />
-            <Text style={{marginLeft: 10, fontSize: 15}} >{name}</Text>
+            <Thumbnail style={{width: 50, height: 50}} source={{uri: photoURL}} />
+            <Text style={{marginLeft: 10, fontSize: 15}} >{name.first} {name.last}</Text>
           </ListItem>
           <ListItem style={{height: 70}} >
             <Button transparent onPress={this.props.logout} >

@@ -12,9 +12,9 @@ import {
 import { WebBrowser, AppLoading } from 'expo';
 import { Constants, Camera, FileSystem, Permissions } from 'expo';
 
-import { Ionicons, FontAwesome, Entypo } from '@expo/vector-icons';
+import { Ionicons, FontAwesome, Entypo, Octicons } from '@expo/vector-icons';
 
-import { Container, Content, Card, CardItem, Thumbnail, Header, Title, Button, Left, Right, Body, Icon, Text, Drawer } from 'native-base';
+import { Container, Content, Card, CardItem, Thumbnail, Header, Title, Button, Left, Right, Body, Icon, Text, Drawer, Badge } from 'native-base';
 import { MonoText } from '../components/StyledText';
 import FromClipboard from '../components/FromClipboard'
 
@@ -33,21 +33,21 @@ export default class HomeScreen extends React.Component {
     super() 
     this.state = {
       clipboard: 'testing123',
-      feeds: [
-        {
-          userPoster: {
-            name: 'Gotcha',
-            profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
-          },
-          content: {
-            type: 'image',
-            title: 'The cutest cat ever!',
-            data: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg',
-            dated: 'March 19'
-          },
-          readState: false
-        }
-      ],
+      // feeds: [
+      //   {
+      //     userPoster: {
+      //       name: 'Gotcha',
+      //       profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
+      //     },
+      //     content: {
+      //       type: 'image',
+      //       title: 'The cutest cat ever!',
+      //       data: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg',
+      //       dated: 'March 19'
+      //     },
+      //     readState: false
+      //   }
+      // ],
       loading: true
     };
   }
@@ -85,13 +85,15 @@ export default class HomeScreen extends React.Component {
   }
 
   render() { 
-    const { name, id, image } = this.props.screenProps.user
-    console.log(name, id, image)
+    const { name, uid, image } = this.props.screenProps.user
+    console.log(name, uid, image)
     const logout  = this.props.screenProps.logout
-    console.log(logout)
-    const { feeds } = this.state
+    // const { feeds } = this.state
+    const { feeds } = this.props.screenProps.user
+    console.log(feeds)
+    // if (feeds.reactions) console.log('total reactions: ', feeds[0].reactions.length)
     let feedsJSX = feeds.map((feed, i) => {
-      console.log(feed.content) 
+      // console.log(feed.content) 
       return (
         <Card key={i} >
           <CardItem>
@@ -99,7 +101,7 @@ export default class HomeScreen extends React.Component {
               <Thumbnail source={{ uri: feed.userPoster.profileImage}} />
               <Body>
                 <Text>{feed.content.title}</Text>
-                <Text note>{feed.userPoster.name}</Text>
+                <Text note>{feed.userPoster.name.first} {feed.userPoster.name.last}</Text>
               </Body>
             </Left>
           </CardItem>
@@ -107,15 +109,21 @@ export default class HomeScreen extends React.Component {
             {/* <Image source={require('../assets/images/image-placeholder.jpg')} style={{height: 200, width: null, flex: 1}}/> */}
             <Image 
                 source={{uri: feed.content.data}}
-                style={{height: Dimensions.get('screen').height/3, width: null , flex: 1}}
+                style={{height: Dimensions.get('screen').height/3, flex: 1 }}
+                // resizeMode={'contain'}
                 blurRadius={this.state.pressStatus? 0 : Platform.OS === 'ios' ? 70 : 10}
               />
           </CardItem>
           <CardItem>
             <Left >
               <Button transparent >
-                <FontAwesome style={{fontSize: 25, textAlign: 'center'}} name='close'/>
+                <Octicons style={{fontSize: 30, textAlign: 'center'}} name='smiley'/>
               </Button>
+              {feeds[i].reactions && (
+                <Badge style={{top: -5, left: -30, width: 25, height: 25}}>
+                  <Text style={{fontSize: 13}} >{Object.keys(feeds[i].reactions).length}</Text>
+                </Badge>) 
+              }
             </Left>
             <Body >
               <Button transparent onPress={() => {
@@ -123,6 +131,7 @@ export default class HomeScreen extends React.Component {
                   headline: feed.content.title,
                   type: feed.content.title.type,
                   media: feed.content.data,
+                  index: i
                 })
               }}
                 style={{justifyContent: 'center'}}>
