@@ -34,21 +34,6 @@ export default class HomeScreen extends React.Component {
     super() 
     this.state = {
       clipboard: 'testing123',
-      // feeds: [
-      //   {
-      //     userPoster: {
-      //       name: 'Gotcha',
-      //       profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
-      //     },
-      //     content: {
-      //       type: 'image',
-      //       title: 'The cutest cat ever!',
-      //       data: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg',
-      //       dated: 'March 19'
-      //     },
-      //     readState: false
-      //   }
-      // ],
       loading: true
     };
   }
@@ -193,7 +178,7 @@ export default class HomeScreen extends React.Component {
           showsPagination={false} >
           <View style={styles.slide1}>
             <Container>
-              <Header hasSegment>
+              <Header hasSegment style={{ backgroundColor: '#fa8700' }} >
                 <Left style={{backgroundColor: 'transparent'}} >
                   <Button transparent onPress={this.openDrawer} >
                     <Entypo 

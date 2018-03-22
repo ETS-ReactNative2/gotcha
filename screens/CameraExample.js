@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Image, View, TouchableOpacity, Vibration, Dimensions, Modal } from 'react-native';
-import { Constants, Camera, FileSystem, Permissions, ImageManipulator } from 'expo';
+import { Constants, Camera, FileSystem, Permissions, ImageManipulator, ImagePicker } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import { Text, Container, Content, Card, CardItem, Thumbnail, Header, Title, Button, Left, Right, Body, Icon, Footer, FooterTab, Form, Item, Input } from 'native-base';
 import * as firebase from 'firebase'
@@ -63,6 +63,18 @@ export default class CameraExample extends React.Component {
       })
     }
   }
+
+  _pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync();
+    console.log(result);
+
+    if (!result.cancelled) {
+      this.setState({ 
+        photoUri: result.uri,
+        modalVisible: true
+      });
+    }
+  };
 
   onPost = async () => {
     const uri = this.state.photoUri
@@ -195,7 +207,12 @@ export default class CameraExample extends React.Component {
           </Content>
           <Footer style={{backgroundColor: 'black'}} >
             <FooterTab style={{backgroundColor: 'black'}} >
-              <Button disabled transparent  />
+              <TouchableOpacity style={{ flex: 1 }}
+                onPress={this._pickImage} > 
+                <Button disabled transparent  >
+                  <Ionicons name="md-image" size={32} color='white' />
+                </Button>
+              </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1 }}
                 onPress={this.takePicture.bind(this)} > 
                 <Button disabled transparent  >
