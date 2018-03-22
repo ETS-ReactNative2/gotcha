@@ -351,7 +351,9 @@ export default class ViewContent extends React.Component {
                   })}
                 </View>
               </ScrollView>
-              <View style={{ display: 'none' }} >
+              {/* <View style={{ display: 'none' }} > */}
+              {/* Hiding the camera with left offset */}
+              <View style={{ left: -100 }} > 
                 <Camera
                   ref={self => { this.camera = self }}
                   style={{ flex: 1, height: 40, width: 30 }}
