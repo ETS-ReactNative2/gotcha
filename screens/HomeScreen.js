@@ -44,6 +44,7 @@ export default class HomeScreen extends React.Component {
       Roboto: require('../node_modules/native-base/Fonts/Roboto.ttf'),
       Roboto_medium: require('../node_modules/native-base/Fonts/Roboto_medium.ttf'),
       Ionicons: require('@expo/vector-icons/fonts/Ionicons.ttf'),
+      Priscillia: require('../assets/fonts/Priscillia.ttf')
     });
     this.setState({ loading: false });
   }
@@ -187,7 +188,7 @@ export default class HomeScreen extends React.Component {
                   </Button>
                 </Left >
                 <Body style={{alignItems: 'center'}}>
-                  <Title>Gotcha</Title>
+                  <Title style={{fontFamily: 'Priscillia', fontSize: 25, paddingVertical: 10, color: 'white'}} >Gotcha</Title>
                 </Body>
                 <Right />
               </Header>
