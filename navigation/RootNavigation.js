@@ -9,6 +9,8 @@ import HomeScreenNavigation from './HomeScreenNavigation';
 import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync';
 
 import { Container, Header, Content, Thumbnail, Text, Button } from 'native-base';
+import { FontAwesome } from '@expo/vector-icons';
+
 
 import * as firebase from 'firebase';
 console.disableYellowBox = true;
@@ -96,36 +98,6 @@ firebase.auth().onAuthStateChanged((user) => {
           photoURL: photoURL,
           providerId: providerId,
           uid: uid,
-          // feeds: [
-          //   {
-          //     userPoster: {
-          //       name: { first: 'Gotcha', last: null },
-          //       profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
-          //     },
-          //     content: {
-          //       type: 'image',
-          //       title: 'Much Wow!',
-          //       data: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521657919/dogefeed.png',
-          //       dated: new Date().toDateString()
-          //     },
-          //     reactions: [],
-          //     readState: false
-          //   },
-          //   {
-          //     userPoster: {
-          //       name: { first: 'Gotcha', last: null },
-          //       profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
-          //     },
-          //     content: {
-          //       type: 'image',
-          //       title: 'The cutest cat ever!',
-          //       data: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg',
-          //       dated: new Date().toDateString()
-          //     },
-          //     reactions: [],
-          //     readState: false
-          //   }
-          // ],
           lastLogin: new Date().toString(),
         };
       } else {
@@ -209,9 +181,6 @@ export default class RootNavigator extends React.Component {
       firebase.auth().signInWithCredential(credential)
       .then((success) => {
         console.log('sign in with credential is successful: ', success)
-        this.setState({
-          isLoggedIn: true
-        })
       })
       .catch((error) => {
         // Handle Errors here.
@@ -233,7 +202,8 @@ export default class RootNavigator extends React.Component {
 
           userRef.once('value', (snapshot) => {
             this.setState({
-              user: snapshot.val()
+              user: snapshot.val(),
+              isLoggedIn: true
             })
           })
 
@@ -284,9 +254,10 @@ export default class RootNavigator extends React.Component {
             paddingVertical: Dimensions.get('screen').height/5
           }} >
           <Thumbnail style={{width: 125, height: 125 }} large source={require('../assets/images/gotcha-logo.png')} />
-          <TouchableOpacity onPress={this.logIn.bind(this)} >
+          <TouchableOpacity onPress={this.logIn.bind(this)} style={{paddingVertical: 25}} >
             <Button rounded disabled primary >
-              <Text>Login with Facebook</Text>
+              <FontAwesome style={{fontSize: 20, paddingLeft: 20, color: 'white' }} name='facebook-official' />
+              <Text uppercase={false} style={{ fontSize: 15 }} >Login with Facebook</Text>
             </Button>
           </TouchableOpacity>
         </Content>

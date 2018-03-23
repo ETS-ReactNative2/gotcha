@@ -133,14 +133,16 @@ export default class ViewReactions extends Component {
             </ImageBackground>
           </Content>
         </Modal>
-        <Header>
+        <Header hasSegment style={{ backgroundColor: '#fa8700' }}  > 
           <Left>
-            <Button transparent onPress={() => this.props.navigation.goBack()}>
-              <Icon name='arrow-back'/>
-            </Button>
+            <TouchableOpacity onPress={() => this.props.navigation.goBack()} >
+              <Button disabled transparent >
+                <Icon name='arrow-back'/>
+              </Button>
+            </TouchableOpacity>
           </Left>
-          <Body style={{flex: 3}}>
-            <Title>Gotcha's</Title>
+          <Body style={{alignItems: 'center', backgroundColor: 'transparent', color: 'white'}}>
+            <Title style={{color: 'white'}} >Shared Reactions</Title>
           </Body>
           <Right />
         </Header>

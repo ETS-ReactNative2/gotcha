@@ -8,17 +8,18 @@ export default class SideBar extends Component {
 
     return (
       <Content style={{ flex: 1, backgroundColor: '#FFFFFF', height: Dimensions.get('window').height }} >
-        <Header style={{height: 120, flex: 3 }} >
+        <Header style={{height: 120, flex: 3, backgroundColor: '#fa8700' }} >
           <Left style={{flex: 1.25, marginLeft: 10}} >
             <Image
-              source={require('../assets/images/icon.png')}
+              source={require('../assets/images/gotcha-logo.png')}
               style={{height: 75, width: 75}}
             />
           </Left>
           <Body style={{flex: 1}} >
-            <Text style={{color: 'white', fontSize: 20}} >Gotcha</Text>
+            <Text style={{color: 'white', fontSize: 16, left: -30}} >Capture</Text>
+            <Text style={{color: 'white', fontSize: 16, left: -5}} >reactions...</Text>
           </Body>
-          <Right />
+          
         </Header>
         <List>
           <ListItem >

@@ -148,14 +148,16 @@ export default class CameraExample extends React.Component {
             visible={this.state.modalVisible}
             onRequestClose={() => {this.setModalVisible(!this.state.modalVisible)} }>
             <View>
-              <Header>
+              <Header hasSegment style={{ backgroundColor: '#fa8700' }} >
                 <Left>
-                  <Button transparent onPress={() => { this.setModalVisible(!this.state.modalVisible) }}>
-                    <Icon name='arrow-back'/>
-                  </Button>
+                  <TouchableOpacity onPress={() => { this.setModalVisible(!this.state.modalVisible) }} >
+                    <Button disabled transparent >
+                      <Icon color='white' name='arrow-back'/>
+                    </Button>
+                  </TouchableOpacity>
                 </Left>
-                <Body style={{flex: 3}}>
-                  <Title>Upload to Gotcha!</Title>
+                <Body style={{alignItems: 'center', backgroundColor: 'transparent', color: 'white'}}>
+                  <Title style={{color: 'white'}} >Upload to Gotcha!</Title>
                 </Body>
                 <Right />
               </Header>
@@ -164,6 +166,8 @@ export default class CameraExample extends React.Component {
               {this.state.photoUri && 
                 <Image 
                   source={{uri: this.state.photoUri }} 
+                  resizeMethod='resize'
+                  resizeMode='contain'
                   style={{ height: Dimensions.get('screen').height/2, width: Dimensions.get('screen').width }}/>
               }
               <Form>

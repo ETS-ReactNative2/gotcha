@@ -11,8 +11,7 @@
     "icon": "./assets/images/gotcha-logo.png",
     "splash": {
       "image": "./assets/images/splash.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#fa8700"
     },
     "ios": {
       "supportsTablet": true

@@ -64,12 +64,42 @@ export default class HomeScreen extends React.Component {
   }
 
   openDrawer = () => {
+    console.log('Opening Drawer')
     this.drawer._root.open()
   }
 
   static navigationOptions = {
     header: null,
   }
+
+  scrollToTop = () => {
+    console.log('scrolling')
+    
+    // this.refs['scrollFeeds'].scrollTo({y: 0, x: 0, animated: true}, 0, true)
+    this.refs['scrollFeeds'].scrollTo({y: 0})
+    // this.scrollFeeds.scrollTo({y: 0})
+  }
+
+   timeConversion = (millisec) => {
+    let seconds = Number(millisec / 1000)
+    let minutes = Number(millisec / (1000 * 60))
+    let hours = Number(millisec / (1000 * 60 * 60))
+    let days = Number(millisec / (1000 * 60 * 60 * 24))
+
+    if (seconds < 60) {
+      if (Math.round(seconds) === 1 ) return "1 sec ago"
+        return Math.round(seconds) + " secs ago"
+    } else if (minutes < 60) {
+        if (Math.round(minutes) === 1 ) return "1 min ago"
+        return Math.round(minutes) + " mins ago"
+    } else if (hours < 24) {
+        if (Math.round(hours) === 1 ) return "1 hr ago"
+        return Math.round(hours) + " hrs ago"
+    } else {
+      if (Math.round(days) === 1 ) return "1 day ago"
+        return Math.round(days) + " days ago"
+    }
+}
 
   render() { 
     const { name, uid, image } = this.props.screenProps.user
@@ -83,15 +113,22 @@ export default class HomeScreen extends React.Component {
     let feedsKeyArray = [...feedsMap.entries()] 
     let feedsArray = [...feedsMap.values()]
     // console.log(feedsKeyArray)
+    
 
     let feedKeys = feedsKeyArray.map(feedArray => {
       return feedArray[0]
     })
-    console.log(feedKeys)
+    feedKeys.reverse()
+    feedsArray.reverse()
+    // console.log(feedKeys)
     // console.log(feedsArray)
     // console.log('globalfeeds', globalfeeds)
+    // console.log(Math.round(13.625180277777778))
     let feedsJSX = feedsArray.map((feed, i) => {
       const hasReaction = feed.reactions
+      let timeDiff = this.timeConversion(new Date() - new Date(feed.content.dated))
+      
+      // console.log(timeDiff)
       return (
         <Card key={feedKeys[i]} >
           <CardItem>
@@ -103,14 +140,24 @@ export default class HomeScreen extends React.Component {
               </Body>
             </Left>
           </CardItem>
-          <CardItem cardBody>
+          <TouchableOpacity 
+                onPress={() => {
+                  this.props.navigation.navigate('ViewContent', {
+                    headline: feed.content.title,
+                    type: feed.content.type,
+                    media: feed.content.data,
+                    index: i,
+                    feedUid: feedKeys[i]
+                  })
+                }} >
+          <CardItem cardBody >
             <Image 
               source={{uri: feed.content.data}}
-              style={{height: Dimensions.get('screen').height/3, flex: 1 }}
-              // resizeMode={'contain'}
+              style={{ height: Dimensions.get('screen').height/3, flex: 1 }}
               blurRadius={this.state.pressStatus? 0 : Platform.OS === 'ios' ? 70 : 10}
             />
           </CardItem>
+          </TouchableOpacity>
           <CardItem>
             <Left >
               <TouchableOpacity
@@ -138,7 +185,7 @@ export default class HomeScreen extends React.Component {
               </TouchableOpacity>
             </Left>
             <Body >
-              <TouchableOpacity 
+              {/* <TouchableOpacity 
                 onPress={() => {
                   this.props.navigation.navigate('ViewContent', {
                     headline: feed.content.title,
@@ -150,12 +197,12 @@ export default class HomeScreen extends React.Component {
                 }} >
                 <Button disabled transparent 
                   style={{justifyContent: 'center' }}>
-                  <FontAwesome style={{fontSize: 50}} name='eye'/>
+                  <FontAwesome style={{fontSize: 50, left: 8}} name='eye'/>
                 </Button>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </Body>
             <Right style={{flex: 0.5}} >
-              <Text style={{ fontSize: 12, alignContent: 'center', left: 1 }} >{feed.content.dated}</Text>
+              <Text style={{ fontSize: 12, alignContent: 'center', left: 1 }} >{timeDiff}</Text>
             </Right>
           </CardItem>
         </Card>
@@ -180,20 +227,19 @@ export default class HomeScreen extends React.Component {
           <View style={styles.slide1}>
             <Container>
               <Header hasSegment style={{ backgroundColor: '#fa8700' }} >
-                <Left style={{backgroundColor: 'transparent'}} >
-                  <Button transparent onPress={this.openDrawer} >
-                    <Entypo 
-                      style={{fontSize: 25, color: 'white'}} 
-                      name='menu' />
+                <Left >
+                  <Button style={{zIndex: 2}} transparent onPress={this.openDrawer} >
+                    <Entypo style={{fontSize: 30, color: 'white'}} name='menu' />
                   </Button>
                 </Left >
-                <Body style={{alignItems: 'center'}}>
-                  <Title style={{fontFamily: 'Priscillia', fontSize: 25, paddingVertical: 10, color: 'white'}} >Gotcha</Title>
-                </Body>
+                <Body style={{alignItems: 'center', backgroundColor: 'transparent'}}>
+                  <Image resizeMode='contain' style={{height: 31}} source={require('../assets/images/gotcha-h-logo.png')} />
+                </Body> 
                 <Right />
               </Header>
               <Content>
-                <ScrollView style={styles.container}>
+                {/* <ScrollView style={styles.container} ref="this.scrollFeeds" > */}
+                <ScrollView onco style={styles.container} ref={self => { this.scrollFeeds = self }} >
                   {feedsJSX}
                 </ScrollView>
               </Content>
@@ -210,19 +256,11 @@ export default class HomeScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-  },
   slide1: {
     flex: 1,
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    // backgroundColor: '#9DD6EB',
   },
   slide2: {
     flex: 1,
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    // backgroundColor: '#97CAE5',
   },
   container: {
     flex: 1,

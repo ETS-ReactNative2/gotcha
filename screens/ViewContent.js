@@ -251,7 +251,7 @@ export default class ViewContent extends React.Component {
     const { hasCameraPermission } = this.state;
     console.log('pressStatus', this.state.pressStatus)
     console.log('modalUri', this.state.modalUri)
-
+    
     /* 2. Read the params from the navigation state */
     const { params } = this.props.navigation.state;
     const type = params ? params.type : null;
@@ -259,7 +259,9 @@ export default class ViewContent extends React.Component {
     const headline = params ? params.headline : null;
     const index = params ? params.index : null;
     const feedUid = params ? params.feedUid : null;
-
+    console.log(media)
+    console.log(async () => {return await ImageManipulator.manipulate(media, [{}],{format: 'jpeg'})})
+    
     console.log(feedUid)
     if (hasCameraPermission === null) {
       return <View />;
@@ -274,67 +276,68 @@ export default class ViewContent extends React.Component {
             visible={this.state.modalVisible}
             onRequestClose={() => {this.setModalVisible(!this.state.modalVisible)} }>
             <View>
-              <Header>
+              <Header hasSegment style={{ backgroundColor: '#fa8700' }} >
                 <Left>
-                  <Button transparent onPress={() => { this.setModalVisible(!this.state.modalVisible) }}>
-                    <Icon name='arrow-back'/>
-                  </Button>
+                  <TouchableOpacity onPress={() => { this.setModalVisible(!this.state.modalVisible) }} >
+                    <Button disabled transparent >
+                      <Icon name='arrow-back'/>
+                    </Button>
+                  </TouchableOpacity>
                 </Left>
-                <Body style={{flex: 3}}>
-                  <Title>Send it!</Title>
+                <Body style={{alignItems: 'center', backgroundColor: 'transparent', color: 'white'}}>
+                  <Title style={{color: 'white'}} >Send it!</Title>
                 </Body>
                 <Right />
               </Header>
             </View>
-            <Content>
+            <Content style={{backgroundColor: 'black'}} >
               <Image
                 ref={self => { this.reactionImage = self }}
                 source={{uri: this.state.modalUri }}
-                style={{ height: Dimensions.get('screen').height/2, width: null }}
+                resizeMethod='resize'
+                resizeMode='contain'
+                // resizeMode='contain'
+                style={{ height: Dimensions.get('screen').height*0.75 }}
               />
             </Content>
-            <Footer style={{backgroundColor: 'transparent'}} >
-              <FooterTab style={{backgroundColor: 'transparent'}} >
+            <Footer style={{backgroundColor: 'black'}} >
+              <FooterTab style={{backgroundColor: 'black'}} >
                 <Button
                   transparent
                   onPress={() => { this.onSend(this.state.modalUri) }}>
-                  <FontAwesome style={{fontSize: 35}} name='send'/>
+                  <FontAwesome style={{fontSize: 35, color: 'white'}} name='send'/>
                 </Button>
               </FooterTab>
             </Footer>
           </Modal>
-          <Header>
+          <Header hasSegment style={{ backgroundColor: '#fa8700' }} >
             <Left>
-              <Button transparent onPress={() => this.props.navigation.goBack()}>
-                <Icon name='arrow-back'/>
-              </Button>
+              <TouchableOpacity onPress={() => this.props.navigation.goBack()} >
+                <Button disabled transparent >
+                  <Icon name='arrow-back'/>
+                </Button>
+              </TouchableOpacity>
             </Left>
-            <Body style={{flex: 3}}>
-              <Title>{headline}</Title>
+            <Body style={{alignItems: 'center', backgroundColor: 'transparent', color: 'white'}}>
+              <Title style={{color: 'white'}} >{headline}</Title>
             </Body>
             <Right />
           </Header>
-          <Content>
+          <Content scrollEnabled={false} style={{backgroundColor: 'white'}} >
             <View style={styles.container}>
-              <ScrollView style={{backgroundColor: 'transparent'}} >
+              <View style={{backgroundColor: 'transparent'}} >
                 <Image 
                   source={{uri: media}}
-                  style={{height: Dimensions.get('screen').height/3, width: null , flex: 1}}
+                  resizeMethod={'resize'}
+                  style={{ minHeight: Dimensions.get('screen').height/1.75, width: Dimensions.get('screen').width}}
                   blurRadius={this.state.pressStatus? 0 : Platform.OS === 'ios' ? 70 : 10}
                 />
-                <View style={{flex: 1, flexWrap: 'nowrap', backgroundColor: 'transparent'}}>
+                <View style={{backgroundColor: 'transparent'}}>
                   <Text style={{textAlign: 'center', backgroundColor: 'transparent'}} >
                   {this.state.photos.length}</Text>
-                </View>
-                <View style={{flex: 1, flexWrap: 'nowrap', backgroundColor: 'transparent'}}>
                   <Text style={{textAlign: 'center', backgroundColor: 'transparent'}}>Press and hold to reveal.</Text>
-                  </View>
-                <View 
-                  style={{ 
-                    flex: 1,
-                    backgroundColor: 'transparent',
-                    flexDirection: 'row',
-                    flexWrap: 'wrap' }}> 
+                </View>
+                <ScrollView horizontal style={{top: -35}} > 
                   {this.state.photos.map(photo => {
                     return (
                     <TouchableOpacity 
@@ -344,16 +347,18 @@ export default class ViewContent extends React.Component {
                       }}>
                       <Image 
                         source={{uri: photo }} 
-                        style={{height: Dimensions.get('screen').height/9, width: Dimensions.get('screen').width/6}}
+                        resizeMode='contain'
+                        style={{height: Dimensions.get('screen').height/4 , width: Dimensions.get('screen').width/6}}
                       />
                     </TouchableOpacity>
                     )
                   })}
-                </View>
-              </ScrollView>
+                </ScrollView>
+              </View>
               {/* <View style={{ display: 'none' }} > */}
               {/* Hiding the camera with left offset */}
               <View style={{ left: -100 }} > 
+              {/* <View >  */}
                 <Camera
                   ref={self => { this.camera = self }}
                   style={{ flex: 1, height: 40, width: 30 }}
@@ -361,9 +366,9 @@ export default class ViewContent extends React.Component {
               </View>
             </View>
           </Content>
-          <Footer style={{backgroundColor: 'transparent'}} >
-            <FooterTab style={{backgroundColor: 'transparent'}} >
-              <Button transparent disabled style={{backgroundColor: 'transparent'}} />
+          <Footer style={{backgroundColor: 'white'}} >
+            <FooterTab style={{backgroundColor: 'white'}} >
+              <Button disabled transparent style={{backgroundColor: 'transparent'}} />
               <Button
                 transparent
                 onPressIn={this.onPressHold.bind(this)}
