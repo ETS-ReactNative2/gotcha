@@ -8,10 +8,12 @@ Gotcha is a fun media sharing mobile app that brings users closer by capturing t
 <div style="align: center">
 <img src="https://github.com/eugeneyu90/gotcha/blob/master/assets/images/Gotcha-FB-Login.gif">
 </div>
+
 ### Sharing a Reaction
 <div style="align: center">
 <img src="https://github.com/eugeneyu90/gotcha/blob/master/assets/images/Gotcha-Reaction.gif">
 </div>
+
 ### Posting to Gotcha
 <div style="align: center">
 <img src="https://github.com/eugeneyu90/gotcha/blob/master/assets/images/Gotcha-Uploading-Post.gif">
