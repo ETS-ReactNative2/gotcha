@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Image, View, Dimensions } from 'react-native'
-import { Container, Content, Card, CardItem, Thumbnail, Header, Title, Button, Left, Right, Body, Icon, Text, Drawer, List, ListItem } from 'native-base';
+import { Container, Content, Card, CardItem, Thumbnail, Header, Title, Button, Left, Right, Body, Icon, Text, Drawer, List, ListItem, Footer, FooterTab } from 'native-base';
 
 export default class SideBar extends Component {
   render() {
     const { name, uid, photoURL } = this.props.user
 
     return (
-      <Content style={{ flex: 1, backgroundColor: '#FFFFFF', height: Dimensions.get('window').height }} >
+      <Content scrollEnabled={false} style={{ flex: 1, backgroundColor: '#FFFFFF', height: Dimensions.get('window').height }} >
         <Header style={{height: 120, flex: 3, backgroundColor: '#fa8700' }} >
           <Left style={{flex: 1.25, marginLeft: 10}} >
             <Image
@@ -31,6 +31,7 @@ export default class SideBar extends Component {
               <Text>Logout</Text>
             </Button>
           </ListItem>
+          {/* <ListItem style={{height: 300}} /> */}
         </List>
       </Content>
     )
