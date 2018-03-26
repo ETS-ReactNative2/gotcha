@@ -18,4 +18,8 @@ Gotcha is a fun media sharing mobile app that brings users closer by capturing t
 * [Firebase] (https://firebase.google.com/)
 * [Facebook Login] (https://developers.facebook.com/docs/facebook-login)
 * [Cloudinary] (https://cloudinary.com/)
+<<<<<<< HEAD
 * [Youtube API] (https://www.youtube.com/yt/dev/api-resources.html)
+=======
+* [Youtube API] (https://www.youtube.com/yt/dev/api-resources.html)
+>>>>>>> 5f2293bcca25ebf2e5909b36a2672aba6b0d7b5c
