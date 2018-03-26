@@ -4,12 +4,16 @@
 Gotcha is a fun media sharing mobile app that brings users closer by capturing the immediate reactions as they look at a hilarious meme or watch a jaw-dropping video. Once users allow Gotcha to utilize the device camera for taking instant photos or videos, they are able to reveal content received from other users. Your first reactions are now captured to be shared with your friends!
 
 ## Demo
-<div style="align: center">
 ### Facebook Login
+<div style="align: center">
 <img src="https://github.com/eugeneyu90/gotcha/blob/master/assets/images/Gotcha-FB-Login.gif">
+</div>
 ### Sharing a Reaction
+<div style="align: center">
 <img src="https://github.com/eugeneyu90/gotcha/blob/master/assets/images/Gotcha-Reaction.gif">
+</div>
 ### Posting to Gotcha
+<div style="align: center">
 <img src="https://github.com/eugeneyu90/gotcha/blob/master/assets/images/Gotcha-Uploading-Post.gif">
 </div>
 
