@@ -1,6 +1,6 @@
 # ![alt text][logo] Gotcha 
 
-[logo]: https://github.com/eugeneyu90/gotcha/blob/master/assets/images/gotcha-logo.jpg "Gotcha - capturing reactions..."
+[logo]: https://github.com/eugeneyu90/gotcha/blob/master/assets/images/gotcha-logo.jpg | width=50 "Gotcha - capturing reactions..."
 
 Gotcha is a fun media sharing mobile app that brings users closer by capturing the immediate reactions as they look at a hilarious meme or watch a jaw-dropping video. Once users allow Gotcha to utilize the device camera for taking instant photos or videos, they are able to reveal content received from other users. Your first reactions are now captured to be shared with your friends!
 
@@ -13,7 +13,7 @@ Gotcha is a fun media sharing mobile app that brings users closer by capturing t
 
 
 ## This application was built using:
-* [React Native](https://facebook.github.io/react-native/)
+* [React Native] (https://facebook.github.io/react-native/)
 * [Expo] (https://expo.io/)
 * [Native Base] (https://nativebase.io/)
 * [Firebase] (https://firebase.google.com/)
