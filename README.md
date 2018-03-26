@@ -1,3 +1,4 @@
+<br>
 # Gotcha <img src="https://github.com/eugeneyu90/gotcha/blob/master/assets/images/gotcha-logo.jpg" align="left" width="100" height="100" title="Gotcha"> 
 <br>
 <br>
