@@ -9,7 +9,6 @@ import { StackNavigator } from 'react-navigation';
 import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync';
 
 // Navigation Imports
-import MainTabNavigator from './MainTabNavigator';
 import HomeScreenNavigation from './HomeScreenNavigation';
 
 // Debugging Console Log
@@ -73,7 +72,6 @@ firebase.auth().onAuthStateChanged((user) => {
 const RootStackNavigator = StackNavigator(
   {
     Main: {
-      // screen: MainTabNavigator,
       screen: HomeScreenNavigation,
     },
   },
