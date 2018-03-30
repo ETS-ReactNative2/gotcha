@@ -1,19 +1,24 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { Notifications, Facebook, AppLoading } from 'expo';
 import { Dimensions, TouchableOpacity, Image } from 'react-native'
-import { StackNavigator } from 'react-navigation';
-
-import MainTabNavigator from './MainTabNavigator';
-import HomeScreenNavigation from './HomeScreenNavigation';
-
-import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync';
-
 import { Container, Header, Content, Thumbnail, Text, Button } from 'native-base';
 import { FontAwesome } from '@expo/vector-icons';
 
+// Boilerplate Imports
+import { StackNavigator } from 'react-navigation';
+import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync';
 
-import * as firebase from 'firebase';
+// Navigation Imports
+import MainTabNavigator from './MainTabNavigator';
+import HomeScreenNavigation from './HomeScreenNavigation';
+
+
+
+// Debugging Console Log
 console.disableYellowBox = true;
+
+// Firebase Setup
+import * as firebase from 'firebase';
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -23,64 +28,10 @@ const firebaseConfig = {
   storageBucket: "gotchaapp-2018.appspot.com"
 };
 
+// Initialize only once
 if (firebase.apps.length === 0) {
   firebase.initializeApp(firebaseConfig);
 }
-
-function storeUserData(user, data) {
-  if (user != null) {
-    firebase.database().ref('users/' + user.providerData[0].uid).set({
-      data: data
-    }); 
-  }
-}
-
-// let feedsData1 = {
-//   userPoster: {
-//     name: { first: 'Gotcha', last: null },
-//     profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
-//   },
-//   content: {
-//     type: 'image',
-//     title: 'Much Wow!',
-//     data: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521657919/dogefeed.png',
-//     dated: new Date()
-//   },
-//   reactions: [],
-//   readState: false
-// }
-
-// let feedsData2 = {
-//   userPoster: {
-//     name: { first: 'Gotcha', last: null },
-//     profileImage: 'http://res.cloudinary.com/eugeneyu/image/upload/v1521621258/gotcha-logo.png',
-//   },
-//   content: {
-//     type: 'image',
-//     title: 'The cutest cat ever!',
-//     data: 'http://kittenrescue.org/wp-content/uploads/2017/03/KittenRescue_KittenCareHandbook.jpg',
-//     dated: new Date()
-//   },
-//   reactions: [],
-//   readState: false
-// }
-
-// // Get a key for a new Feed.
-// let newFeedKey1 = firebase.database().ref('feeds/').push().key;
-// let newFeedKey2 = firebase.database().ref('feeds/').push().key;
-// let updates = {};
-// updates['feeds/' + newFeedKey1] = feedsData1;
-// updates['feeds/' + newFeedKey2] = feedsData2
-// firebase.database().ref().update(updates);
-
-
-function setupDataListener(userId) {
-  firebase.database().ref('users/' + userId).on('value', (snapshot) => {
-    const data = snapshot.val().data;
-    console.log("New data: " + data);
-  });
-}
-
 
 // Listen for authentication state to change.
 firebase.auth().onAuthStateChanged((user) => {
@@ -116,7 +67,6 @@ firebase.auth().onAuthStateChanged((user) => {
       } else {
         console.log(`User ${displayName} added!`);
       }
-      // console.log(`${displayName}'s data: `, snapshot.val());
     })
     console.log("We are authenticated now!"); 
   }
@@ -169,24 +119,23 @@ export default class RootNavigator extends React.Component {
   }
 
   async logIn() {
-    console.log('clicked fb')
     const { type, token } = await Facebook.logInWithReadPermissionsAsync('1302890223144184', {
         permissions: ['public_profile', 'email', 'user_friends'],
       });
     if (type === 'success') {
       // Build Firebase credential with the Facebook access token.
       const credential = firebase.auth.FacebookAuthProvider.credential(token);
-      // console.log('credential', credential)
+
       // Sign in with credential from the Facebook user.
       firebase.auth().signInWithCredential(credential)
       .then((success) => {
         console.log('sign in with credential is successful: ', success)
       })
       .catch((error) => {
-        // Handle Errors here.
         console.log(error)
       });
-      // Get the user's name/id using Facebook's Graph API
+
+      // Get the user's id using Facebook's Graph API
       const response = await fetch(
         `https://graph.facebook.com/me?access_token=${token}`)
         .then(success => {
@@ -194,12 +143,14 @@ export default class RootNavigator extends React.Component {
           let userRef = firebase.database().ref(`users/${id}`)
           let feedsRef = firebase.database().ref('feeds/')
           
+          // Retrieve Global Feeds
           feedsRef.once('value', (snapshot) => {
             this.setState({
               feeds: snapshot.val()
             })
           })
 
+          // Retrieve Logged In User Details
           userRef.once('value', (snapshot) => {
             this.setState({
               user: snapshot.val(),
@@ -207,6 +158,7 @@ export default class RootNavigator extends React.Component {
             })
           })
 
+          // Listen and updated Global Feeds
           feedsRef.on('value', (snapshot) => {
             this.setState({
               feeds: snapshot.val()
