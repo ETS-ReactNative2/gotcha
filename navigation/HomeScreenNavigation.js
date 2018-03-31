@@ -1,8 +1,8 @@
-import React from 'react';
-import HomeScreen from '../screens/HomeScreen';
-import ViewContent from '../screens/ViewContent';
-import ViewReactions from '../screens/ViewReactions';
-import { StackNavigator } from 'react-navigation';
+import React, { Component } from 'react'
+import HomeScreen from '../screens/HomeScreen'
+import ViewContent from '../screens/ViewContent'
+import ViewReactions from '../screens/ViewReactions'
+import { StackNavigator } from 'react-navigation'
 
 const HomeScreenNavigator = StackNavigator(
   {
@@ -17,21 +17,14 @@ const HomeScreenNavigator = StackNavigator(
     }
   },
   {
-    headerMode: 'none',
-    navigationOptions: () => ({
-      headerTitleStyle: {
-        top: 0,
-        fontWeight: 'normal',
-        lineHeight: 10,
-        zIndex: 2
-      },
-    }),
+    headerMode: 'none'
   }
-);
+)
 
-export default class HomeScreenNavigation extends React.Component {
+class HomeScreenNavigation extends Component {
   render() {
-    // console.log(this.props)
-    return <HomeScreenNavigator screenProps={this.props.screenProps } />;
+    return <HomeScreenNavigator screenProps={this.props.screenProps } />
   }
 }
+
+export default HomeScreenNavigation

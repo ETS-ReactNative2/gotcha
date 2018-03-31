@@ -1,41 +1,71 @@
-import React from 'react';
+import React, { Component } from 'react';
 import {
   Image,
   Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  View,
+  View, 
   Clipboard,
   Dimensions
 } from 'react-native';
-import { WebBrowser, AppLoading } from 'expo';
-import { Constants, Camera, FileSystem, Permissions } from 'expo';
+import { 
+  WebBrowser, 
+  AppLoading, 
+  Constants, 
+  Camera, 
+  FileSystem, 
+  Permissions 
+} from 'expo';
+import { 
+  Ionicons, 
+  FontAwesome, 
+  Entypo, 
+  Octicons 
+} from '@expo/vector-icons';
 
-import { Ionicons, FontAwesome, Entypo, Octicons } from '@expo/vector-icons';
+// Native Base
+import { 
+  Container, 
+  Content, 
+  Card, 
+  CardItem, 
+  Thumbnail, 
+  Header, 
+  Title, 
+  Button, 
+  Left, 
+  Right, 
+  Body, 
+  Icon, 
+  Text, 
+  Drawer, 
+  Badge 
+} from 'native-base';
 
-import { Container, Content, Card, CardItem, Thumbnail, Header, Title, Button, Left, Right, Body, Icon, Text, Drawer, Badge } from 'native-base';
-import { MonoText } from '../components/StyledText';
-import FromClipboard from '../components/FromClipboard'
-
+// Modules
+import Swiper from 'react-native-swiper';
 import { StackNavigator } from 'react-navigation';
+
+// Screens
 import ViewContent from './ViewContent'
 import SideBar from './SideBar'
 import CameraExample from './CameraExample'
 
-import Swiper from 'react-native-swiper';
+// Components
+import FromClipboard from '../components/FromClipboard'
 
-
+// Navigator Setup
 const App = StackNavigator({
   ViewContent: { screen: ViewContent}
 })
-export default class HomeScreen extends React.Component {
+
+class HomeScreen extends Component {
   constructor() {
     super() 
     this.state = {
-      clipboard: 'testing123',
       loading: true
-    };
+    }
   }
 
   async componentWillMount() {
@@ -45,8 +75,8 @@ export default class HomeScreen extends React.Component {
       Roboto_medium: require('../node_modules/native-base/Fonts/Roboto_medium.ttf'),
       Ionicons: require('@expo/vector-icons/fonts/Ionicons.ttf'),
       Priscillia: require('../assets/fonts/Priscillia.ttf')
-    });
-    this.setState({ loading: false });
+    })
+    this.setState({ loading: false })
   }
 
   async _getContent() { 
@@ -114,7 +144,6 @@ export default class HomeScreen extends React.Component {
     let feedsArray = [...feedsMap.values()]
     // console.log(feedsKeyArray)
     
-
     let feedKeys = feedsKeyArray.map(feedArray => {
       return feedArray[0]
     })
@@ -123,7 +152,6 @@ export default class HomeScreen extends React.Component {
     // console.log(feedKeys)
     // console.log(feedsArray)
     // console.log('globalfeeds', globalfeeds)
-    // console.log(Math.round(13.625180277777778))
     let feedsJSX = feedsArray.map((feed, i) => {
       const hasReaction = feed.reactions
       let timeDiff = this.timeConversion(new Date() - new Date(feed.content.dated))
@@ -162,7 +190,6 @@ export default class HomeScreen extends React.Component {
             <Left >
               <TouchableOpacity
                 disabled={!feed.reactions}
-                // { ...!hasReaction && disabled }
                 onPress={() => {
                   this.props.navigation.navigate('ViewReactions', {
                     reactions: feed.reactions,
@@ -238,7 +265,6 @@ export default class HomeScreen extends React.Component {
                 <Right />
               </Header>
               <Content>
-                {/* <ScrollView style={styles.container} ref="this.scrollFeeds" > */}
                 <ScrollView onco style={styles.container} ref={self => { this.scrollFeeds = self }} >
                   {feedsJSX}
                 </ScrollView>
@@ -254,6 +280,8 @@ export default class HomeScreen extends React.Component {
     );
   }
 }
+
+export default HomeScreen
 
 const styles = StyleSheet.create({
   slide1: {

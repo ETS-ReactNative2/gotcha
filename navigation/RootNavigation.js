@@ -76,16 +76,11 @@ const RootStackNavigator = StackNavigator(
     },
   },
   {
-    headerMode: 'none',
-    navigationOptions: () => ({
-      headerTitleStyle: {
-        fontWeight: 'normal'
-      }
-    })
+    headerMode: 'none'
   }
 )
 
-export default class RootNavigator extends React.Component {
+class RootNavigator extends Component {
   constructor() {
     super()
     this.state = {
@@ -225,6 +220,8 @@ export default class RootNavigator extends React.Component {
     console.log(`Push notification ${origin} with data: ${JSON.stringify(data)}`);
   };
 }
+
+export default RootNavigator
 
 // StyleSheets
 const styles = StyleSheet.create({
