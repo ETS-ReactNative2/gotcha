@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import {
   Image,
   Platform,
@@ -8,7 +8,7 @@ import {
   View, 
   Clipboard,
   Dimensions
-} from 'react-native';
+} from 'react-native'
 import { 
   WebBrowser, 
   AppLoading, 
@@ -16,13 +16,13 @@ import {
   Camera, 
   FileSystem, 
   Permissions 
-} from 'expo';
+} from 'expo'
 import { 
   Ionicons, 
   FontAwesome, 
   Entypo, 
   Octicons 
-} from '@expo/vector-icons';
+} from '@expo/vector-icons'
 
 // Native Base
 import { 
@@ -41,11 +41,11 @@ import {
   Text, 
   Drawer, 
   Badge 
-} from 'native-base';
+} from 'native-base'
 
 // Modules
-import Swiper from 'react-native-swiper';
-import { StackNavigator } from 'react-navigation';
+import Swiper from 'react-native-swiper'
+import { StackNavigator } from 'react-navigation'
 
 // Screens
 import ViewContent from './ViewContent'
