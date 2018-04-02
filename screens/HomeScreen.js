@@ -94,7 +94,6 @@ class HomeScreen extends Component {
   }
 
   openDrawer = () => {
-    console.log('Opening Drawer')
     this.drawer._root.open()
   }
 
