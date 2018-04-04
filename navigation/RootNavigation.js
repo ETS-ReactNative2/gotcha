@@ -14,7 +14,7 @@ import HomeScreenNavigation from './HomeScreenNavigation';
 // Debugging Console Log
 console.disableYellowBox = true;
 
-// Firebase Setup
+// Firebase Import
 import * as firebase from 'firebase';
 
 // Initialize Firebase
@@ -76,16 +76,11 @@ const RootStackNavigator = StackNavigator(
     },
   },
   {
-    headerMode: 'none',
-    navigationOptions: () => ({
-      headerTitleStyle: {
-        fontWeight: 'normal'
-      }
-    })
+    headerMode: 'none'
   }
 )
 
-export default class RootNavigator extends React.Component {
+class RootNavigator extends Component {
   constructor() {
     super()
     this.state = {
@@ -115,7 +110,7 @@ export default class RootNavigator extends React.Component {
     this._notificationSubscription && this._notificationSubscription.remove();
   }
 
-  async logIn() {
+  logIn = async () => {
     const { type, token } = await Facebook.logInWithReadPermissionsAsync('1302890223144184', {
         permissions: ['public_profile', 'email', 'user_friends'],
       });
@@ -225,6 +220,8 @@ export default class RootNavigator extends React.Component {
     console.log(`Push notification ${origin} with data: ${JSON.stringify(data)}`);
   };
 }
+
+export default RootNavigator
 
 // StyleSheets
 const styles = StyleSheet.create({

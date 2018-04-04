@@ -1,9 +1,44 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View, Image, TouchableOpacity, TouchableHighlight,  CameraRoll, Platform, Dimensions, Modal } from 'react-native';
-import { Text, Container, Content, Card, CardItem, Thumbnail, Header, Title, Button, Left, Right, Body, Icon, Footer, FooterTab } from 'native-base';
-import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
-
-import { Constants, FileSystem, Camera, Permissions, ImageManipulator } from 'expo'
+import { 
+  ScrollView, 
+  StyleSheet, 
+  View, 
+  Image, 
+  TouchableOpacity, 
+  TouchableHighlight, 
+  CameraRoll, 
+  Platform, 
+  Dimensions, 
+  Modal 
+} from 'react-native';
+import { 
+  Text, 
+  Container, 
+  Content, 
+  Card, 
+  CardItem, 
+  Thumbnail, 
+  Header, 
+  Title, 
+  Button, 
+  Left, 
+  Right, 
+  Body, 
+  Icon, 
+  Footer, 
+  FooterTab 
+} from 'native-base';
+import { 
+  MaterialIcons, 
+  FontAwesome 
+} from '@expo/vector-icons';
+import { 
+  Constants, 
+  FileSystem, 
+  Camera, 
+  Permissions, 
+  ImageManipulator 
+} from 'expo'
 
 import * as firebase from 'firebase'
 // import FirebaseStorage from 'firebase'
