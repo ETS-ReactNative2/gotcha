@@ -29,6 +29,7 @@ Gotcha is a fun media sharing mobile app that brings users closer by capturing t
 + Video Recordings To Be Added!
 + Videos Viewing and Cacheing...
 + Videos & Images metadata
++ Videos Timestamp tracking
 
 ## This application was built using:
 * [React Native] (https://facebook.github.io/react-native/)
