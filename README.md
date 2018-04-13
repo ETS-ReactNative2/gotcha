@@ -25,6 +25,8 @@ Gotcha is a fun media sharing mobile app that brings users closer by capturing t
 + View reactions to posts
 + Send your reactions back!
 + Take a picture or select one to post to the Gotcha community
+
+## To be added
 + Video Support To Be Added!
 + Video Recordings To Be Added!
 + Videos Viewing and Cacheing...
